@@ -25,7 +25,7 @@ interface UserStats {
 interface QuizHistory {
   id: string
   title: string
-  topic: string
+  subject: "math" | "physics" | "general"
   score: number
   totalQuestions: number
   completedAt: string
@@ -296,7 +296,7 @@ export default function DashboardPage() {
                             {quiz.difficulty}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">{quiz.topic}</p>
+                        <p className="text-sm text-muted-foreground">{quiz.subject === "math" ? "Mathematics" : quiz.subject === "physics" ? "Physics" : "General Knowledge"}</p>
                         <p className="text-xs text-muted-foreground mt-1">{formatDate(quiz.completedAt)}</p>
                       </div>
                       <div className="text-right">

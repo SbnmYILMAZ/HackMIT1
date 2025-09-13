@@ -29,7 +29,7 @@ interface Quiz {
   id: string
   title: string
   description: string
-  topic: string
+  subject: "math" | "physics" | "general"
   difficulty: "easy" | "medium" | "hard"
   questionCount: number
   estimatedTime: number
@@ -44,36 +44,36 @@ interface Quiz {
 const mockQuizzes: Quiz[] = [
   {
     id: "1",
-    title: "JavaScript Fundamentals",
-    description: "Test your knowledge of JavaScript basics including variables, functions, and control structures.",
-    topic: "Programming",
+    title: "Calculus Fundamentals",
+    description: "Test your knowledge of calculus basics including derivatives, integrals, and limits.",
+    subject: "math",
     difficulty: "medium",
     questionCount: 15,
     estimatedTime: 12,
     rating: 4.8,
     completions: 1234,
-    author: "CodeMaster",
-    tags: ["javascript", "programming", "web-development"],
+    author: "MathMaster",
+    tags: ["calculus", "mathematics", "derivatives"],
     isPopular: true,
   },
   {
     id: "2",
-    title: "World History: Ancient Civilizations",
-    description: "Explore the rise and fall of ancient civilizations from Egypt to Rome.",
-    topic: "History",
+    title: "Classical Mechanics",
+    description: "Explore the fundamental principles of classical mechanics and motion.",
+    subject: "physics",
     difficulty: "hard",
     questionCount: 20,
     estimatedTime: 18,
     rating: 4.6,
     completions: 892,
-    author: "HistoryBuff",
-    tags: ["history", "ancient", "civilizations"],
+    author: "PhysicsPro",
+    tags: ["physics", "mechanics", "motion"],
   },
   {
     id: "3",
     title: "Basic Algebra",
     description: "Master the fundamentals of algebra with equations, variables, and problem-solving.",
-    topic: "Mathematics",
+    subject: "math",
     difficulty: "easy",
     questionCount: 12,
     estimatedTime: 10,
@@ -85,92 +85,84 @@ const mockQuizzes: Quiz[] = [
   },
   {
     id: "4",
-    title: "English Grammar Essentials",
-    description: "Improve your grammar skills with comprehensive exercises on tenses, punctuation, and syntax.",
-    topic: "Language",
+    title: "General Knowledge Quiz",
+    description: "Test your knowledge across various topics including history, geography, and culture.",
+    subject: "general",
     difficulty: "medium",
     questionCount: 18,
     estimatedTime: 15,
     rating: 4.7,
     completions: 1567,
-    author: "GrammarGuru",
-    tags: ["english", "grammar", "language"],
+    author: "QuizMaster",
+    tags: ["general", "knowledge", "trivia"],
   },
   {
     id: "5",
-    title: "Introduction to React",
-    description: "Learn the basics of React including components, props, and state management.",
-    topic: "Programming",
-    difficulty: "medium",
+    title: "Advanced Physics",
+    description: "Explore advanced physics concepts including quantum mechanics and relativity.",
+    subject: "physics",
+    difficulty: "hard",
     questionCount: 16,
     estimatedTime: 14,
     rating: 4.8,
     completions: 987,
-    author: "ReactPro",
-    tags: ["react", "javascript", "frontend"],
+    author: "PhysicsExpert",
+    tags: ["physics", "quantum", "relativity"],
     isPopular: true,
   },
   {
     id: "6",
-    title: "Art History: Renaissance",
-    description: "Discover the masterpieces and artists of the Renaissance period.",
-    topic: "Art",
+    title: "World Geography",
+    description: "Test your knowledge of countries, capitals, and geographical features.",
+    subject: "general",
     difficulty: "medium",
     questionCount: 14,
     estimatedTime: 12,
     rating: 4.5,
     completions: 654,
-    author: "ArtLover",
-    tags: ["art", "renaissance", "history"],
+    author: "GeoExpert",
+    tags: ["geography", "general", "world"],
   },
   {
     id: "7",
-    title: "Basic Chemistry",
-    description: "Understand fundamental chemistry concepts including atoms, molecules, and reactions.",
-    topic: "Science",
+    title: "Advanced Calculus",
+    description: "Master advanced calculus concepts including multivariable calculus and differential equations.",
+    subject: "math",
     difficulty: "hard",
     questionCount: 22,
     estimatedTime: 20,
     rating: 4.4,
     completions: 743,
-    author: "ChemExpert",
-    tags: ["chemistry", "science", "atoms"],
+    author: "MathExpert",
+    tags: ["calculus", "mathematics", "advanced"],
   },
   {
     id: "8",
-    title: "Music Theory Basics",
-    description: "Learn the fundamentals of music theory including scales, chords, and rhythm.",
-    topic: "Music",
+    title: "General Science Quiz",
+    description: "Test your knowledge across various scientific disciplines and discoveries.",
+    subject: "general",
     difficulty: "easy",
     questionCount: 10,
     estimatedTime: 8,
     rating: 4.6,
     completions: 432,
-    author: "MusicMaestro",
-    tags: ["music", "theory", "scales"],
+    author: "ScienceFan",
+    tags: ["science", "general", "discovery"],
     isNew: true,
   },
 ]
 
-const topics = ["All", "Programming", "Mathematics", "History", "Language", "Science", "Art", "Music"]
+const subjects = ["All", "Mathematics", "Physics", "General Knowledge"]
 const difficulties = ["All", "easy", "medium", "hard"]
 
-const getTopicIcon = (topic: string) => {
-  switch (topic.toLowerCase()) {
-    case "programming":
-      return Code
-    case "mathematics":
+const getSubjectIcon = (subject: string) => {
+  switch (subject.toLowerCase()) {
+    case "math":
       return Calculator
-    case "history":
-      return Globe
-    case "language":
-      return BookOpen
-    case "science":
+    case "physics":
       return Brain
-    case "art":
-      return Palette
-    case "music":
-      return Music
+    case "general":
+      return Globe
     default:
       return BookOpen
   }
@@ -191,7 +183,7 @@ const getDifficultyColor = (difficulty: string) => {
 
 export default function CatalogPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedTopic, setSelectedTopic] = useState("All")
+  const [selectedSubject, setSelectedSubject] = useState("All")
   const [selectedDifficulty, setSelectedDifficulty] = useState("All")
   const [sortBy, setSortBy] = useState("popular")
 
@@ -202,10 +194,13 @@ export default function CatalogPage() {
         quiz.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         quiz.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
-      const matchesTopic = selectedTopic === "All" || quiz.topic === selectedTopic
+      const matchesSubject = selectedSubject === "All" || 
+        (quiz.subject === "math" && selectedSubject === "Mathematics") ||
+        (quiz.subject === "physics" && selectedSubject === "Physics") ||
+        (quiz.subject === "general" && selectedSubject === "General Knowledge")
       const matchesDifficulty = selectedDifficulty === "All" || quiz.difficulty === selectedDifficulty
 
-      return matchesSearch && matchesTopic && matchesDifficulty
+      return matchesSearch && matchesSubject && matchesDifficulty
     })
 
     // Sort quizzes
@@ -226,7 +221,7 @@ export default function CatalogPage() {
     })
 
     return filtered
-  }, [searchQuery, selectedTopic, selectedDifficulty, sortBy])
+  }, [searchQuery, selectedSubject, selectedDifficulty, sortBy])
 
   return (
     <AuthGuard>
@@ -257,14 +252,14 @@ export default function CatalogPage() {
 
                 {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                  <Select value={selectedSubject} onValueChange={setSelectedSubject}>
                     <SelectTrigger className="w-full sm:w-40">
-                      <SelectValue placeholder="Topic" />
+                      <SelectValue placeholder="Subject" />
                     </SelectTrigger>
                     <SelectContent>
-                      {topics.map((topic) => (
-                        <SelectItem key={topic} value={topic}>
-                          {topic}
+                      {subjects.map((subject) => (
+                        <SelectItem key={subject} value={subject}>
+                          {subject}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -300,16 +295,16 @@ export default function CatalogPage() {
               </div>
 
               {/* Active Filters */}
-              {(selectedTopic !== "All" || selectedDifficulty !== "All" || searchQuery) && (
+              {(selectedSubject !== "All" || selectedDifficulty !== "All" || searchQuery) && (
                 <div className="flex flex-wrap gap-2 mt-4">
                   {searchQuery && (
                     <Badge variant="secondary" className="bg-primary/10 text-primary">
                       Search: "{searchQuery}"
                     </Badge>
                   )}
-                  {selectedTopic !== "All" && (
+                  {selectedSubject !== "All" && (
                     <Badge variant="secondary" className="bg-secondary/10 text-secondary">
-                      Topic: {selectedTopic}
+                      Subject: {selectedSubject}
                     </Badge>
                   )}
                   {selectedDifficulty !== "All" && (
@@ -322,7 +317,7 @@ export default function CatalogPage() {
                     size="sm"
                     onClick={() => {
                       setSearchQuery("")
-                      setSelectedTopic("All")
+                      setSelectedSubject("All")
                       setSelectedDifficulty("All")
                     }}
                     className="h-6 px-2 text-xs"
@@ -344,14 +339,14 @@ export default function CatalogPage() {
           {/* Quiz Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedQuizzes.map((quiz) => {
-              const TopicIcon = getTopicIcon(quiz.topic)
+              const SubjectIcon = getSubjectIcon(quiz.subject)
               return (
                 <Card key={quiz.id} className="border-border hover:shadow-lg transition-all duration-200 group">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <TopicIcon className="w-4 h-4 text-primary" />
+                          <SubjectIcon className="w-4 h-4 text-primary" />
                         </div>
                         <Badge className={getDifficultyColor(quiz.difficulty)} variant="secondary">
                           {quiz.difficulty}

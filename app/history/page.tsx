@@ -14,7 +14,7 @@ import { useState } from "react"
 interface QuizHistory {
   id: string
   title: string
-  topic: string
+  subject: "math" | "physics" | "general"
   difficulty: "easy" | "medium" | "hard"
   score: number
   totalQuestions: number
@@ -26,8 +26,8 @@ interface QuizHistory {
 const mockHistory: QuizHistory[] = [
   {
     id: "1",
-    title: "JavaScript Fundamentals",
-    topic: "Programming",
+    title: "Calculus Fundamentals",
+    subject: "math",
     difficulty: "medium",
     score: 9,
     totalQuestions: 10,
@@ -37,8 +37,8 @@ const mockHistory: QuizHistory[] = [
   },
   {
     id: "2",
-    title: "World History Quiz",
-    topic: "History",
+    title: "Classical Mechanics",
+    subject: "physics",
     difficulty: "hard",
     score: 7,
     totalQuestions: 8,
@@ -48,8 +48,8 @@ const mockHistory: QuizHistory[] = [
   },
   {
     id: "3",
-    title: "Basic Math",
-    topic: "Mathematics",
+    title: "Basic Algebra",
+    subject: "math",
     difficulty: "easy",
     score: 10,
     totalQuestions: 10,
@@ -59,8 +59,8 @@ const mockHistory: QuizHistory[] = [
   },
   {
     id: "4",
-    title: "English Grammar",
-    topic: "Language",
+    title: "General Knowledge Quiz",
+    subject: "general",
     difficulty: "medium",
     score: 8,
     totalQuestions: 10,
@@ -70,8 +70,8 @@ const mockHistory: QuizHistory[] = [
   },
   {
     id: "5",
-    title: "React Components",
-    topic: "Programming",
+    title: "Quantum Physics",
+    subject: "physics",
     difficulty: "hard",
     score: 6,
     totalQuestions: 8,
@@ -83,7 +83,7 @@ const mockHistory: QuizHistory[] = [
 
 export default function HistoryPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [topicFilter, setTopicFilter] = useState("all")
+  const [subjectFilter, setSubjectFilter] = useState("all")
   const [difficultyFilter, setDifficultyFilter] = useState("all")
   const [sortBy, setSortBy] = useState("recent")
 
@@ -124,11 +124,24 @@ export default function HistoryPage() {
     return "text-red-600"
   }
 
+  const getSubjectLabel = (subject: string) => {
+    switch (subject) {
+      case "math":
+        return "Math"
+      case "physics":
+        return "Physics"
+      case "general":
+        return "General"
+      default:
+        return subject
+    }
+  }
+
   const filteredHistory = mockHistory.filter((item) => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesTopic = topicFilter === "all" || item.topic.toLowerCase() === topicFilter
+    const matchesSubject = subjectFilter === "all" || item.subject === subjectFilter
     const matchesDifficulty = difficultyFilter === "all" || item.difficulty === difficultyFilter
-    return matchesSearch && matchesTopic && matchesDifficulty
+    return matchesSearch && matchesSubject && matchesDifficulty
   })
 
   return (
@@ -155,16 +168,15 @@ export default function HistoryPage() {
                   />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Select value={topicFilter} onValueChange={setTopicFilter}>
+                  <Select value={subjectFilter} onValueChange={setSubjectFilter}>
                     <SelectTrigger className="w-full sm:w-40">
-                      <SelectValue placeholder="Topic" />
+                      <SelectValue placeholder="Subject" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Topics</SelectItem>
-                      <SelectItem value="programming">Programming</SelectItem>
-                      <SelectItem value="mathematics">Mathematics</SelectItem>
-                      <SelectItem value="history">History</SelectItem>
-                      <SelectItem value="language">Language</SelectItem>
+                      <SelectItem value="all">All Subjects</SelectItem>
+                      <SelectItem value="math">Math</SelectItem>
+                      <SelectItem value="physics">Physics</SelectItem>
+                      <SelectItem value="general">General</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
@@ -261,7 +273,7 @@ export default function HistoryPage() {
                           <Badge className={getDifficultyColor(item.difficulty)} variant="secondary">
                             {item.difficulty}
                           </Badge>
-                          <Badge variant="outline">{item.topic}</Badge>
+                          <Badge variant="outline">{getSubjectLabel(item.subject)}</Badge>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">

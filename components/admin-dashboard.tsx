@@ -52,16 +52,14 @@ const mockData = {
     { day: "Sat", completed: 900, started: 1300 },
     { day: "Sun", completed: 800, started: 1100 },
   ],
-  topicDistribution: [
-    { name: "Mathematics", value: 35, color: "#8b5cf6" },
-    { name: "Science", value: 28, color: "#06b6d4" },
-    { name: "History", value: 18, color: "#f59e0b" },
-    { name: "Literature", value: 12, color: "#ef4444" },
-    { name: "Other", value: 7, color: "#10b981" },
+  subjectDistribution: [
+    { name: "Math", value: 45, color: "#8b5cf6" },
+    { name: "Physics", value: 35, color: "#06b6d4" },
+    { name: "General", value: 20, color: "#f59e0b" },
   ],
   recentActivity: [
     { id: 1, user: "Alice Johnson", action: 'Completed "Advanced Calculus"', score: 95, time: "2 minutes ago" },
-    { id: 2, user: "Bob Smith", action: "Created custom quiz", topic: "Physics", time: "5 minutes ago" },
+    { id: 2, user: "Bob Smith", action: "Created custom quiz", subject: "physics", time: "5 minutes ago" },
     { id: 3, user: "Carol Davis", action: 'Failed "World History"', score: 45, time: "8 minutes ago" },
     { id: 4, user: "David Wilson", action: 'Started "Biology Basics"', time: "12 minutes ago" },
     { id: 5, user: "Eva Brown", action: 'Achieved "Quiz Master" badge', time: "15 minutes ago" },
@@ -244,22 +242,22 @@ export function AdminDashboard() {
 
             <Card className="bg-slate-900 border-slate-800">
               <CardHeader>
-                <CardTitle className="text-white">Topic Distribution</CardTitle>
-                <CardDescription className="text-slate-400">Quiz topics by popularity</CardDescription>
+                <CardTitle className="text-white">Subject Distribution</CardTitle>
+                <CardDescription className="text-slate-400">Quiz subjects by popularity</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={data.topicDistribution}
+                      data={data.subjectDistribution}
                       cx="50%"
                       cy="50%"
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                     >
-                      {data.topicDistribution.map((entry, index) => (
+                      {data.subjectDistribution.map((entry: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>

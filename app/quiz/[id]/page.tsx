@@ -34,7 +34,7 @@ const mockQuizData = {
     title: "JavaScript Fundamentals",
     description:
       "Test your knowledge of JavaScript basics including variables, functions, and control structures. This comprehensive quiz covers essential concepts that every JavaScript developer should know.",
-    topic: "Programming",
+    subject: "general",
     difficulty: "medium" as const,
     questionCount: 15,
     estimatedTime: 12,
@@ -68,22 +68,14 @@ const mockQuizData = {
   },
 }
 
-const getTopicIcon = (topic: string) => {
-  switch (topic.toLowerCase()) {
-    case "programming":
-      return Code
-    case "mathematics":
+const getSubjectIcon = (subject: string) => {
+  switch (subject) {
+    case "math":
       return Calculator
-    case "history":
-      return Globe
-    case "language":
-      return BookOpen
-    case "science":
+    case "physics":
       return Brain
-    case "art":
-      return Palette
-    case "music":
-      return Music
+    case "general":
+      return BookOpen
     default:
       return BookOpen
   }
@@ -126,7 +118,7 @@ export default function QuizDetailPage() {
     )
   }
 
-  const TopicIcon = getTopicIcon(quiz.topic)
+  const SubjectIcon = getSubjectIcon(quiz.subject)
   const averageScore =
     quiz.recentScores.reduce((acc, score) => acc + (score.score / score.total) * 100, 0) / quiz.recentScores.length
 
@@ -157,14 +149,14 @@ export default function QuizDetailPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <TopicIcon className="w-6 h-6 text-primary" />
+                        <SubjectIcon className="w-6 h-6 text-primary" />
                       </div>
                       <div>
                         <Badge className={getDifficultyColor(quiz.difficulty)} variant="secondary">
                           {quiz.difficulty}
                         </Badge>
                         <Badge className="ml-2" variant="outline">
-                          {quiz.topic}
+                          {quiz.subject === "math" ? "Math" : quiz.subject === "physics" ? "Physics" : "General"}
                         </Badge>
                         {quiz.isPopular && (
                           <Badge

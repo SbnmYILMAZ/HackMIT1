@@ -42,7 +42,7 @@ import { useState } from "react"
 interface QuizResult {
   id: string
   title: string
-  topic: string
+  subject: "math" | "physics" | "general"
   difficulty: "easy" | "medium" | "hard"
   score: number
   totalQuestions: number
@@ -58,8 +58,8 @@ interface ProgressData {
   points: number
 }
 
-interface TopicPerformance {
-  topic: string
+interface SubjectPerformance {
+  subject: string
   averageScore: number
   quizzesCompleted: number
   totalPoints: number
