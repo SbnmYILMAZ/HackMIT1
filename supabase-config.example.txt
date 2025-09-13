@@ -1,0 +1,15 @@
+# Configuración de Supabase
+# Copia este archivo como .env.local y completa con tus valores reales
+
+NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase_aqui
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima_aqui
+
+# Opcional: Para desarrollo local
+# SUPABASE_SERVICE_ROLE_KEY=tu_clave_service_role_aqui
+
+# Instrucciones:
+# 1. Ve a tu proyecto en https://supabase.com/dashboard
+# 2. Ve a Settings > API
+# 3. Copia la URL del proyecto y la clave anónima
+# 4. Crea un archivo .env.local en la raíz del proyecto
+# 5. Pega las variables con los valores reales
