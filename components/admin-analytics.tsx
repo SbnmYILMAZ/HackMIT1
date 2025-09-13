@@ -44,11 +44,9 @@ const mockAnalytics = {
     { date: "2024-01-20", sessions: 1520, users: 1150, pageViews: 4400 },
   ],
   quizPerformance: [
-    { category: "Mathematics", completed: 2400, started: 3200, avgScore: 78 },
-    { category: "Science", completed: 1800, started: 2400, avgScore: 82 },
-    { category: "History", completed: 1200, started: 1600, avgScore: 75 },
-    { category: "Literature", completed: 900, started: 1200, avgScore: 80 },
-    { category: "Other", completed: 600, started: 800, avgScore: 73 },
+    { subject: "math", completed: 2400, started: 3200, avgScore: 78 },
+    { subject: "physics", completed: 1800, started: 2400, avgScore: 82 },
+    { subject: "general", completed: 1800, started: 2400, avgScore: 76 },
   ],
   deviceBreakdown: [
     { name: "Desktop", value: 45, color: "#8b5cf6" },
@@ -250,13 +248,13 @@ export function AdminAnalytics() {
             <Card className="bg-slate-900 border-slate-800">
               <CardHeader>
                 <CardTitle className="text-white">Quiz Completion Rates</CardTitle>
-                <CardDescription className="text-slate-400">Started vs completed by category</CardDescription>
+                <CardDescription className="text-slate-400">Started vs completed by subject</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={data.quizPerformance}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="category" stroke="#9ca3af" />
+                    <XAxis dataKey="subject" stroke="#9ca3af" />
                     <YAxis stroke="#9ca3af" />
                     <Tooltip
                       contentStyle={{
@@ -324,7 +322,7 @@ export function AdminAnalytics() {
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                     >
                       {data.deviceBreakdown.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { SubjectType, DifficultyType } from "@/lib/types/database"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,12 +34,30 @@ import {
   AlertTriangle,
 } from "lucide-react"
 
+// Quiz interface
+interface QuizData {
+  id: number
+  title: string
+  subject: SubjectType
+  difficulty: DifficultyType
+  status: 'published' | 'pending' | 'draft' | 'flagged' | 'rejected'
+  author: string
+  authorId: number
+  createdAt: string
+  updatedAt: string
+  questions: number
+  attempts: number
+  averageScore: number
+  reports: number
+  featured: boolean
+}
+
 // Mock quiz data
-const mockQuizzes = [
+const mockQuizzes: QuizData[] = [
   {
     id: 1,
     title: "Advanced Calculus Fundamentals",
-    category: "Mathematics",
+    subject: "math",
     difficulty: "hard",
     status: "published",
     author: "Dr. Smith",
@@ -54,7 +73,7 @@ const mockQuizzes = [
   {
     id: 2,
     title: "Basic Chemistry Quiz",
-    category: "Science",
+    subject: "physics",
     difficulty: "easy",
     status: "pending",
     author: "Alice Johnson",
@@ -70,7 +89,7 @@ const mockQuizzes = [
   {
     id: 3,
     title: "World War II History",
-    category: "History",
+    subject: "general",
     difficulty: "medium",
     status: "published",
     author: "Prof. Davis",
@@ -86,7 +105,7 @@ const mockQuizzes = [
   {
     id: 4,
     title: "Inappropriate Content Quiz",
-    category: "Other",
+    subject: "general",
     difficulty: "easy",
     status: "flagged",
     author: "BadUser123",
@@ -102,7 +121,7 @@ const mockQuizzes = [
   {
     id: 5,
     title: "Shakespeare Literature",
-    category: "Literature",
+    subject: "general",
     difficulty: "medium",
     status: "draft",
     author: "Carol Wilson",
@@ -118,12 +137,12 @@ const mockQuizzes = [
 ]
 
 export function QuizManagement() {
-  const [quizzes, setQuizzes] = useState(mockQuizzes)
-  const [filteredQuizzes, setFilteredQuizzes] = useState(mockQuizzes)
+  const [quizzes, setQuizzes] = useState<QuizData[]>(mockQuizzes)
+  const [filteredQuizzes, setFilteredQuizzes] = useState<QuizData[]>(mockQuizzes)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [selectedQuiz, setSelectedQuiz] = useState(null)
+  const [subjectFilter, setSubjectFilter] = useState("all")
+  const [selectedQuiz, setSelectedQuiz] = useState<QuizData | null>(null)
   const [activeTab, setActiveTab] = useState("all")
   const [isLoading, setIsLoading] = useState(false)
 
@@ -147,7 +166,7 @@ export function QuizManagement() {
         (quiz) =>
           quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           quiz.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          quiz.category.toLowerCase().includes(searchTerm.toLowerCase()),
+          quiz.subject.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     }
 
@@ -156,15 +175,15 @@ export function QuizManagement() {
       filtered = filtered.filter((quiz) => quiz.status === statusFilter)
     }
 
-    // Apply category filter
-    if (categoryFilter !== "all") {
-      filtered = filtered.filter((quiz) => quiz.category === categoryFilter)
+    // Apply subject filter
+    if (subjectFilter !== "all") {
+      filtered = filtered.filter((quiz) => quiz.subject === subjectFilter)
     }
 
     setFilteredQuizzes(filtered)
-  }, [quizzes, searchTerm, statusFilter, categoryFilter, activeTab])
+  }, [quizzes, searchTerm, statusFilter, subjectFilter, activeTab])
 
-  const getStatusBadge = (status, reports = 0) => {
+  const getStatusBadge = (status: string, reports: number = 0) => {
     if (reports > 0) {
       return (
         <Badge variant="destructive" className="flex items-center gap-1">
@@ -180,9 +199,9 @@ export function QuizManagement() {
       draft: { variant: "outline", icon: Edit, color: "text-slate-400" },
       flagged: { variant: "destructive", icon: Flag, color: "text-red-400" },
       rejected: { variant: "destructive", icon: XCircle, color: "text-red-400" },
-    }
+    } as const
 
-    const config = variants[status] || variants.draft
+    const config = variants[status as keyof typeof variants] || variants.draft
     const Icon = config.icon
 
     return (
@@ -193,7 +212,7 @@ export function QuizManagement() {
     )
   }
 
-  const getDifficultyBadge = (difficulty) => {
+  const getDifficultyBadge = (difficulty: DifficultyType) => {
     const colors = {
       easy: "bg-green-500/20 text-green-300 border-green-500/30",
       medium: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
@@ -207,7 +226,7 @@ export function QuizManagement() {
     )
   }
 
-  const handleQuizAction = (action, quizId) => {
+  const handleQuizAction = (action: string, quizId: number) => {
     setIsLoading(true)
     // Simulate API call
     setTimeout(() => {
@@ -217,24 +236,24 @@ export function QuizManagement() {
             if (quiz.id === quizId) {
               switch (action) {
                 case "approve":
-                  return { ...quiz, status: "published" }
+                  return { ...quiz, status: "published" as const }
                 case "reject":
-                  return { ...quiz, status: "rejected" }
+                  return { ...quiz, status: "rejected" as const }
                 case "flag":
-                  return { ...quiz, status: "flagged", reports: quiz.reports + 1 }
+                  return { ...quiz, status: "flagged" as const, reports: quiz.reports + 1 }
                 case "unflag":
-                  return { ...quiz, status: "published", reports: 0 }
+                  return { ...quiz, status: "published" as const, reports: 0 }
                 case "feature":
                   return { ...quiz, featured: !quiz.featured }
                 case "delete":
-                  return null
+                  return quiz // Return quiz to maintain type, will be filtered out
                 default:
                   return quiz
               }
             }
             return quiz
           })
-          .filter(Boolean),
+          .filter((quiz) => action !== "delete" || quiz.id !== quizId),
       )
       setIsLoading(false)
     }, 1000)
@@ -350,7 +369,7 @@ export function QuizManagement() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <Input
-                    placeholder="Search quizzes by title, author, or category..."
+                    placeholder="Search quizzes by title, author, or subject..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 bg-slate-800 border-slate-700 text-white"
@@ -369,17 +388,15 @@ export function QuizManagement() {
                   <SelectItem value="flagged">Flagged</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select value={subjectFilter} onValueChange={setSubjectFilter}>
                 <SelectTrigger className="w-full md:w-48 bg-slate-800 border-slate-700 text-white">
-                  <SelectValue placeholder="Filter by category" />
+                  <SelectValue placeholder="Filter by subject" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Mathematics">Mathematics</SelectItem>
-                  <SelectItem value="Science">Science</SelectItem>
-                  <SelectItem value="History">History</SelectItem>
-                  <SelectItem value="Literature">Literature</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="all">All Subjects</SelectItem>
+                  <SelectItem value="math">Math</SelectItem>
+                  <SelectItem value="physics">Physics</SelectItem>
+                  <SelectItem value="general">General</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -440,7 +457,7 @@ export function QuizManagement() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className="border-slate-600 text-slate-300">
-                          {quiz.category}
+                          {quiz.subject === "math" ? "Math" : quiz.subject === "physics" ? "Physics" : "General"}
                         </Badge>
                       </TableCell>
                       <TableCell>{getStatusBadge(quiz.status, quiz.reports)}</TableCell>
@@ -486,8 +503,8 @@ export function QuizManagement() {
                                   <p className="text-white">{quiz.author}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 text-sm">Category</p>
-                                  <p className="text-white">{quiz.category}</p>
+                                  <p className="text-slate-400 text-sm">Subject</p>
+                                  <p className="text-white">{quiz.subject === "math" ? "Math" : quiz.subject === "physics" ? "Physics" : "General"}</p>
                                 </div>
                                 <div>
                                   <p className="text-slate-400 text-sm">Questions</p>
