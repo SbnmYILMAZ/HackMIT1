@@ -86,7 +86,7 @@ const mockQuizzes: Quiz[] = [
   {
     id: "4",
     title: "General Knowledge Quiz",
-    description: "Test your knowledge across various topics including history, geography, and culture.",
+    description: "Test your knowledge across various subjects including history, geography, and culture.",
     subject: "general",
     difficulty: "medium",
     questionCount: 18,
@@ -231,7 +231,7 @@ export default function CatalogPage() {
           <div>
             <h1 className="text-3xl font-bold text-foreground">Quiz Catalog</h1>
             <p className="text-muted-foreground mt-1">
-              Discover and take quizzes on various topics to expand your knowledge
+              Discover and take quizzes on various subjects to expand your knowledge
             </p>
           </div>
 
@@ -243,7 +243,7 @@ export default function CatalogPage() {
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search quizzes, topics, or tags..."
+                    placeholder="Search quizzes, subjects, or tags..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -446,7 +446,7 @@ export default function CatalogPage() {
                   variant="outline"
                   onClick={() => {
                     setSearchQuery("")
-                    setSelectedTopic("All")
+                    setSelectedSubject("All")
                     setSelectedDifficulty("All")
                   }}
                 >

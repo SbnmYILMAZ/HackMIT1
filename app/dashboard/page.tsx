@@ -128,7 +128,7 @@ export default function DashboardPage() {
           const recentHistory: QuizHistory[] = attempts.map((attempt: any) => ({
             id: attempt.id,
             title: attempt.quiz?.title || 'Quiz',
-            topic: attempt.quiz?.category || 'General',
+            subject: attempt.quiz?.subject || 'general',
             score: attempt.score || 0,
             totalQuestions: attempt.total_questions || 0,
             completedAt: attempt.completed_at || attempt.created_at,

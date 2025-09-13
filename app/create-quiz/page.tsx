@@ -111,7 +111,7 @@ export default function CreateQuizPage() {
         ],
         correctAnswer: 0,
         explanation: "Based on the notes provided, the main focus appears to be on basic programming principles.",
-        hint: "Look for the most frequently mentioned topic in your notes.",
+        hint: "Look for the most frequently mentioned subject in your notes.",
         difficulty: "medium",
       },
       {

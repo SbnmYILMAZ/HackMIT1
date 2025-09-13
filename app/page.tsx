@@ -147,7 +147,7 @@ export default function HomePage() {
               {
                 icon: Users,
                 title: "Community Learning",
-                desc: "Share your custom quizzes with others and discover new topics from the community.",
+                desc: "Share your custom quizzes with others and discover new subjects from the community.",
                 gradient: "from-green-500 to-emerald-500",
                 delay: "0.4s",
               },

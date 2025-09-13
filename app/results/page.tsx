@@ -69,8 +69,8 @@ interface SubjectPerformance {
 const mockResults: QuizResult[] = [
   {
     id: "1",
-    title: "JavaScript Fundamentals",
-    topic: "Programming",
+    title: "Calculus Fundamentals",
+    subject: "math",
     difficulty: "medium",
     score: 9,
     totalQuestions: 10,
@@ -80,8 +80,8 @@ const mockResults: QuizResult[] = [
   },
   {
     id: "2",
-    title: "World History Quiz",
-    topic: "History",
+    title: "Classical Mechanics",
+    subject: "physics",
     difficulty: "hard",
     score: 7,
     totalQuestions: 8,
@@ -91,8 +91,8 @@ const mockResults: QuizResult[] = [
   },
   {
     id: "3",
-    title: "Basic Math",
-    topic: "Mathematics",
+    title: "Basic Algebra",
+    subject: "math",
     difficulty: "easy",
     score: 10,
     totalQuestions: 10,
@@ -102,8 +102,8 @@ const mockResults: QuizResult[] = [
   },
   {
     id: "4",
-    title: "English Grammar",
-    topic: "Language",
+    title: "General Knowledge Quiz",
+    subject: "general",
     difficulty: "medium",
     score: 8,
     totalQuestions: 10,
@@ -113,8 +113,8 @@ const mockResults: QuizResult[] = [
   },
   {
     id: "5",
-    title: "React Components",
-    topic: "Programming",
+    title: "Quantum Physics",
+    subject: "physics",
     difficulty: "hard",
     score: 6,
     totalQuestions: 8,
@@ -124,14 +124,14 @@ const mockResults: QuizResult[] = [
   },
   {
     id: "6",
-    title: "Art History",
-    topic: "Art",
+    title: "Statistics Basics",
+    subject: "math",
     difficulty: "medium",
     score: 9,
     totalQuestions: 12,
     timeSpent: 840000,
     completedAt: "2024-01-12T15:30:00Z",
-    pointsEarned: 90,
+    pointsEarned: 108,
   },
 ]
 
@@ -146,17 +146,15 @@ const progressData: ProgressData[] = [
   { date: "Jan 15", score: 87, quizzes: 2, points: 195 },
 ]
 
-const topicPerformance: TopicPerformance[] = [
-  { topic: "Programming", averageScore: 83, quizzesCompleted: 2, totalPoints: 180, color: "#d97706" },
-  { topic: "Mathematics", averageScore: 100, quizzesCompleted: 1, totalPoints: 100, color: "#ec4899" },
-  { topic: "History", averageScore: 88, quizzesCompleted: 1, totalPoints: 105, color: "#8b5cf6" },
-  { topic: "Language", averageScore: 80, quizzesCompleted: 1, totalPoints: 80, color: "#06b6d4" },
-  { topic: "Art", averageScore: 75, quizzesCompleted: 1, totalPoints: 90, color: "#10b981" },
+const subjectPerformance: SubjectPerformance[] = [
+  { subject: "math", averageScore: 95, quizzesCompleted: 3, totalPoints: 298, color: "#d97706" },
+  { subject: "physics", averageScore: 85, quizzesCompleted: 2, totalPoints: 195, color: "#ec4899" },
+  { subject: "general", averageScore: 80, quizzesCompleted: 1, totalPoints: 80, color: "#8b5cf6" },
 ]
 
 export default function ResultsPage() {
   const [timeFilter, setTimeFilter] = useState("all")
-  const [topicFilter, setTopicFilter] = useState("all")
+  const [subjectFilter, setSubjectFilter] = useState("all")
   const [activeTab, setActiveTab] = useState("overview")
 
   const getDifficultyColor = (difficulty: string) => {
@@ -235,17 +233,15 @@ export default function ResultsPage() {
                     <SelectItem value="quarter">This Quarter</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={topicFilter} onValueChange={setTopicFilter}>
+                <Select value={subjectFilter} onValueChange={setSubjectFilter}>
                   <SelectTrigger className="w-40">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Topics</SelectItem>
-                    <SelectItem value="programming">Programming</SelectItem>
-                    <SelectItem value="mathematics">Mathematics</SelectItem>
-                    <SelectItem value="history">History</SelectItem>
-                    <SelectItem value="language">Language</SelectItem>
-                    <SelectItem value="art">Art</SelectItem>
+                    <SelectItem value="all">All Subjects</SelectItem>
+                    <SelectItem value="math">Math</SelectItem>
+                    <SelectItem value="physics">Physics</SelectItem>
+                    <SelectItem value="general">General</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -304,7 +300,7 @@ export default function ResultsPage() {
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="progress">Progress</TabsTrigger>
-              <TabsTrigger value="topics">By Topic</TabsTrigger>
+              <TabsTrigger value="subjects">By Subject</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
             </TabsList>
 
@@ -337,24 +333,24 @@ export default function ResultsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <PieChartIcon className="w-5 h-5" />
-                      Topic Distribution
+                      Subject Distribution
                     </CardTitle>
-                    <CardDescription>Quiz attempts by topic</CardDescription>
+                    <CardDescription>Quiz attempts by subject</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
                         <Pie
-                          data={topicPerformance}
+                          data={subjectPerformance}
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ topic, quizzesCompleted }) => `${topic}: ${quizzesCompleted}`}
+                          label={({ subject, quizzesCompleted }: any) => `${subject}: ${quizzesCompleted}`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="quizzesCompleted"
                         >
-                          {topicPerformance.map((entry, index) => (
+                          {subjectPerformance.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
@@ -381,7 +377,7 @@ export default function ResultsPage() {
                             <Badge className={getDifficultyColor(result.difficulty)} variant="secondary">
                               {result.difficulty}
                             </Badge>
-                            <Badge variant="outline">{result.topic}</Badge>
+                            <Badge variant="outline">{result.subject === "math" ? "Math" : result.subject === "physics" ? "Physics" : "General"}</Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">{formatDate(result.completedAt)}</p>
                         </div>
@@ -495,21 +491,21 @@ export default function ResultsPage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="topics" className="space-y-6">
-              {/* Topic Performance */}
+            <TabsContent value="subjects" className="space-y-6">
+              {/* Subject Performance */}
               <Card className="border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart3 className="w-5 h-5" />
-                    Performance by Topic
+                    Performance by Subject
                   </CardTitle>
                   <CardDescription>Compare your performance across different subjects</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={topicPerformance}>
+                    <BarChart data={subjectPerformance}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="topic" />
+                      <XAxis dataKey="subject" />
                       <YAxis />
                       <Tooltip />
                       <Bar dataKey="averageScore" fill="#d97706" />
@@ -518,27 +514,27 @@ export default function ResultsPage() {
                 </CardContent>
               </Card>
 
-              {/* Topic Details */}
+              {/* Subject Details */}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {topicPerformance.map((topic) => (
-                  <Card key={topic.topic} className="border-border">
+                {subjectPerformance.map((subject) => (
+                  <Card key={subject.subject} className="border-border">
                     <CardHeader>
-                      <CardTitle className="text-lg">{topic.topic}</CardTitle>
+                      <CardTitle className="text-lg">{subject.subject === "math" ? "Math" : subject.subject === "physics" ? "Physics" : "General"}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Average Score</span>
-                        <span className="font-semibold">{topic.averageScore}%</span>
+                        <span className="font-semibold">{subject.averageScore}%</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Quizzes</span>
-                        <span className="font-semibold">{topic.quizzesCompleted}</span>
+                        <span className="font-semibold">{subject.quizzesCompleted}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Points</span>
-                        <span className="font-semibold">{topic.totalPoints}</span>
+                        <span className="font-semibold">{subject.totalPoints}</span>
                       </div>
-                      <Progress value={topic.averageScore} className="h-2" />
+                      <Progress value={subject.averageScore} className="h-2" />
                     </CardContent>
                   </Card>
                 ))}
@@ -566,7 +562,7 @@ export default function ResultsPage() {
                               <Badge className={getDifficultyColor(result.difficulty)} variant="secondary">
                                 {result.difficulty}
                               </Badge>
-                              <Badge variant="outline">{result.topic}</Badge>
+                              <Badge variant="outline">{result.subject === "math" ? "Math" : result.subject === "physics" ? "Physics" : "General"}</Badge>
                               <span className="text-sm text-muted-foreground">{formatDate(result.completedAt)}</span>
                             </div>
                           </div>
