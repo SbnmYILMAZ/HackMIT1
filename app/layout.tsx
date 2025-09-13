@@ -10,8 +10,7 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "QuizMaster - Learn Through Interactive Quizzes",
   description:
-    "An engaging educational platform for creating and taking interactive quizzes with accessibility features",
-  generator: "v0.app",
+    "An engaging educational platform for creating and taking interactive quizzes with accessibility features"
 }
 
 export default function RootLayout({
