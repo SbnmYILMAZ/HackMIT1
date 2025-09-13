@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Database Management{% endblock %}
+
+{% block content %}
+<h1><span class="emoji">👤</span>{{ title }}</h1>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+    
+    <div class="form-group">
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
+        {% if form.username.errors %}
+            <div class="form-errors">
+                {% for error in form.username.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    
+    <div class="form-group">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control") }}
+        {% if form.password.errors %}
+            <div class="form-errors">
+                {% for error in form.password.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        {{ form.confirm_password.label(class="form-label") }}
+        {{ form.confirm_password(class="form-control") }}
+        {% if form.confirm_password.errors %}
+            <div class="form-errors">
+                {% for error in form.confirm_password.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <div class="checkbox-group">
+            {{ form.is_active() }}
+            {{ form.is_active.label() }}
+        </div>
+    </div>
+    
+    <div class="form-group">
+        {{ form.submit(class="btn") }}
+        <a href="/users" class="btn btn-danger">Cancel</a>
+    </div>
+</form>
+{% endblock %}

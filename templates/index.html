@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackMIT Space Mission</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', monospace;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0c0c1e 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated stars background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, #fff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: sparkle 20s linear infinite;
+            z-index: 1;
+        }
+        
+        @keyframes sparkle {
+            from { transform: translateX(0); }
+            to { transform: translateX(-200px); }
+        }
+        
+        .container {
+            background: transparent;
+            padding: 3rem;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 700px;
+            margin: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        
+        h1 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+            font-size: 3rem;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(79, 172, 254, 0.8);
+            letter-spacing: 2px;
+        }
+        
+        p {
+            color: #cbd5e1;
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+        
+        .status {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
+            color: #10b981;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+            margin-bottom: 1rem;
+        }
+        
+        .pygame-info {
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(79, 70, 229, 0.2));
+            color: #a78bfa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.2);
+            margin-top: 1rem;
+        }
+        
+        .mission-control {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(79, 172, 254, 0.2));
+            color: #60a5fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+            margin-top: 1rem;
+        }
+        
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 0.5rem;
+        }
+        
+        strong {
+            font-weight: 700;
+        }
+        
+        /* Floating animation for container */
+        .container {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Login section styles */
+        .login-section {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(147, 51, 234, 0.2));
+            color: #ffffff;
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.2);
+            margin-top: 2rem;
+        }
+        
+        .login-section h2 {
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(79, 172, 254, 0.6);
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        
+        .input-group label {
+            color: #cbd5e1;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .input-group input {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
+            background: rgba(15, 23, 42, 0.9);
+        }
+        
+        .input-group input::placeholder {
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: #0f172a;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Flash message styles */
+        .flash-message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .flash-success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
+            color: #10b981;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+        }
+        
+        .flash-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+        
+        /* Create Account Section */
+        .create-account-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(79, 172, 254, 0.2);
+            text-align: center;
+        }
+        
+        .create-account-text {
+            color: #cbd5e1;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+        
+        .create-account-btn {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid rgba(147, 51, 234, 0.4);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .create-account-btn:hover {
+            background: rgba(147, 51, 234, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(147, 51, 234, 0.4);
+            border-color: rgba(147, 51, 234, 0.6);
+        }
+        
+        .create-account-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HACKMIT SPACE MISSION</h1>
+        <p>Welcome, Astronaut! Please enter your credentials to access the mission dashboard.</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="login-section">
+            <h2>Mission Access</h2>
+            <form class="login-form" action="/login" method="POST">
+                <div class="input-group">
+                    <label for="username">Astronaut ID</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your astronaut ID" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Access Code</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your access code" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    Launch Mission
+                </button>
+            </form>
+            
+            <div class="create-account-section">
+                <p class="create-account-text">New to the mission?</p>
+                <a href="/register" class="create-account-btn" style="text-decoration: none; display: inline-block;">
+                    Join the Crew
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

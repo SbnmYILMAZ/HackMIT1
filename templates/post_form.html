@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Database Management{% endblock %}
+
+{% block content %}
+<h1><span class="emoji">📝</span>{{ title }}</h1>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+    
+    <div class="form-group">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control") }}
+        {% if form.title.errors %}
+            <div class="form-errors">
+                {% for error in form.title.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        {{ form.content.label(class="form-label") }}
+        {{ form.content(class="form-control", rows="6") }}
+        {% if form.content.errors %}
+            <div class="form-errors">
+                {% for error in form.content.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        {{ form.user_id.label(class="form-label") }}
+        {{ form.user_id(class="form-control") }}
+        {% if form.user_id.errors %}
+            <div class="form-errors">
+                {% for error in form.user_id.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <div class="checkbox-group">
+            {{ form.is_published() }}
+            {{ form.is_published.label() }}
+        </div>
+    </div>
+    
+    <div class="form-group">
+        {{ form.submit(class="btn") }}
+        <a href="/posts" class="btn btn-danger">Cancel</a>
+    </div>
+</form>
+{% endblock %}

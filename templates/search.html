@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Search - Database Management{% endblock %}
+
+{% block content %}
+<h1><span class="emoji">🔍</span>Search Database</h1>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+    
+    <div style="display: flex; gap: 1rem; align-items: end; margin-bottom: 2rem;">
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            {{ form.search_term.label(class="form-label") }}
+            {{ form.search_term(class="form-control") }}
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            {{ form.search_type.label(class="form-label") }}
+            {{ form.search_type(class="form-control") }}
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            {{ form.submit(class="btn") }}
+        </div>
+    </div>
+</form>
+
+{% if results %}
+<h2>Search Results ({{ results|length }} found)</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            {% if form.search_type.data == 'users' %}
+                <th>ID</th>
+                <th>Username</th>
+                <th>Created</th>
+                <th>Status</th>
+            {% elif form.search_type.data == 'posts' %}
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Created</th>
+                <th>Status</th>
+            {% elif form.search_type.data == 'categories' %}
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Created</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in results %}
+        <tr>
+            {% if form.search_type.data == 'users' %}
+                <td>{{ item.id }}</td>
+                <td>{{ item.username }}</td>
+                <td>{{ item.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if item.is_active %}
+                        <span style="color: #10b981;">Active</span>
+                    {% else %}
+                        <span style="color: #ef4444;">Inactive</span>
+                    {% endif %}
+                </td>
+            {% elif form.search_type.data == 'posts' %}
+                <td>{{ item.id }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.author.username }}</td>
+                <td>{{ item.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if item.is_published %}
+                        <span style="color: #10b981;">Published</span>
+                    {% else %}
+                        <span style="color: #f59e0b;">Draft</span>
+                    {% endif %}
+                </td>
+            {% elif form.search_type.data == 'categories' %}
+                <td>{{ item.id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.description[:100] }}{% if item.description and item.description|length > 100 %}...{% endif %}</td>
+                <td>{{ item.created_at.strftime('%Y-%m-%d') }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% elif request.method == 'POST' %}
+<div class="alert alert-error">
+    No results found for your search.
+</div>
+{% endif %}
+{% endblock %}
