@@ -9,14 +9,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Brain, Eye, EyeOff, Mail, Lock, User } from "lucide-react"
+import { Brain, Eye, EyeOff, User, Lock } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { signUpWithUsername, checkUsernameAvailability } from "@/lib/auth/auth-helpers"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    username: "",
+    full_name: "",
     password: "",
     confirmPassword: "",
   })
@@ -38,36 +39,38 @@ export default function RegisterPage() {
 
     try {
       // Validation
-      if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-        throw new Error("Please fill in all fields")
+      if (!formData.username || !formData.full_name || !formData.password || !formData.confirmPassword) {
+        throw new Error("Por favor completa todos los campos")
       }
 
       if (formData.password !== formData.confirmPassword) {
-        throw new Error("Passwords do not match")
+        throw new Error("Las contraseñas no coinciden")
       }
 
       if (formData.password.length < 6) {
-        throw new Error("Password must be at least 6 characters long")
+        throw new Error("La contraseña debe tener al menos 6 caracteres")
       }
 
       if (!acceptTerms) {
-        throw new Error("Please accept the terms and conditions")
+        throw new Error("Por favor acepta los términos y condiciones")
       }
 
-      // Mock registration - in real app, this would call your auth API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Verificar disponibilidad del username
+      const isUsernameAvailable = await checkUsernameAvailability(formData.username)
+      if (!isUsernameAvailable) {
+        throw new Error("Este nombre de usuario ya está en uso")
+      }
 
-      // Simulate successful registration
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          email: formData.email,
-          name: formData.name,
-        }),
-      )
+      // Registrar usuario
+      await signUpWithUsername({
+        username: formData.username,
+        password: formData.password,
+        full_name: formData.full_name
+      })
+      
       router.push("/dashboard")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed")
+      setError(err instanceof Error ? err.message : "Error de registro")
     } finally {
       setIsLoading(false)
     }
@@ -102,15 +105,15 @@ export default function RegisterPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="name"
+                    id="username"
                     type="text"
-                    placeholder="John Doe"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    placeholder="your_username"
+                    value={formData.username}
+                    onChange={(e) => handleInputChange("username", e.target.value)}
                     className="pl-10"
                     required
                   />
@@ -118,15 +121,15 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="full_name">Full Name</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="student@example.com"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    id="full_name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={formData.full_name}
+                    onChange={(e) => handleInputChange("full_name", e.target.value)}
                     className="pl-10"
                     required
                   />

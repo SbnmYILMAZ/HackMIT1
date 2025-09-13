@@ -9,6 +9,9 @@ import { Progress } from "@/components/ui/progress"
 import { Target, Clock, TrendingUp, BookOpen, Star, Award, Zap, Calendar, Play, Plus, Edit } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import { useAuth } from "@/hooks/use-auth"
+import { getUserAttemptStats, getUserAttempts } from "@/lib/database/attempt-operations"
+import { getUserQuizzes } from "@/lib/database/quiz-operations"
 
 interface UserStats {
   totalQuizzes: number
@@ -39,45 +42,19 @@ interface UserBadge {
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null)
+  const { user } = useAuth()
   const [stats, setStats] = useState<UserStats>({
-    totalQuizzes: 24,
-    averageScore: 87,
-    currentStreak: 5,
-    totalPoints: 2450,
-    completedToday: 2,
+    totalQuizzes: 0,
+    averageScore: 0,
+    currentStreak: 0,
+    totalPoints: 0,
+    completedToday: 0,
     weeklyGoal: 10,
   })
+  const [loading, setLoading] = useState(true)
 
-  const [recentQuizzes] = useState<QuizHistory[]>([
-    {
-      id: "1",
-      title: "JavaScript Fundamentals",
-      topic: "Programming",
-      score: 9,
-      totalQuestions: 10,
-      completedAt: "2024-01-15T10:30:00Z",
-      difficulty: "medium",
-    },
-    {
-      id: "2",
-      title: "World History Quiz",
-      topic: "History",
-      score: 7,
-      totalQuestions: 8,
-      completedAt: "2024-01-15T09:15:00Z",
-      difficulty: "hard",
-    },
-    {
-      id: "3",
-      title: "Basic Math",
-      topic: "Mathematics",
-      score: 10,
-      totalQuestions: 10,
-      completedAt: "2024-01-14T16:45:00Z",
-      difficulty: "easy",
-    },
-  ])
+  const [recentQuizzes, setRecentQuizzes] = useState<QuizHistory[]>([])
+  const [userProfile, setUserProfile] = useState<{ full_name?: string } | null>(null)
 
   const [badges] = useState<UserBadge[]>([
     {
@@ -128,11 +105,51 @@ export default function DashboardPage() {
   ])
 
   useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      setUser(JSON.parse(userData))
+    const loadDashboardData = async () => {
+      if (!user) return
+      
+      try {
+        // Load user stats
+        const userStats = await getUserAttemptStats(user.id)
+        if (userStats) {
+          setStats({
+            totalQuizzes: userStats.totalAttempts || 0,
+            averageScore: userStats.averageScore || 0,
+            currentStreak: 0, // TODO: Implement streak calculation
+            totalPoints: userStats.totalAttempts * 10 || 0, // Simple points calculation
+            completedToday: 0, // TODO: Calculate today's attempts
+            weeklyGoal: 10,
+          })
+        }
+
+        // Load recent attempts
+        const attempts = await getUserAttempts(user.id, { limit: 5 })
+        if (attempts) {
+          const recentHistory: QuizHistory[] = attempts.map((attempt: any) => ({
+            id: attempt.id,
+            title: attempt.quiz?.title || 'Quiz',
+            topic: attempt.quiz?.category || 'General',
+            score: attempt.score || 0,
+            totalQuestions: attempt.total_questions || 0,
+            completedAt: attempt.completed_at || attempt.created_at,
+            difficulty: attempt.quiz?.difficulty || 'medium'
+          }))
+          setRecentQuizzes(recentHistory)
+        }
+
+        // Load user profile for display name
+        // Use email as fallback since we have username-only auth
+        setUserProfile({ full_name: user.email?.split('@')[0] || 'Usuario' })
+        
+      } catch (error) {
+        console.error('Error loading dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [])
+
+    loadDashboardData()
+  }, [user])
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -183,7 +200,7 @@ export default function DashboardPage() {
           {/* Welcome Section */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Welcome back, {user?.name || "Student"}!</h1>
+              <h1 className="text-3xl font-bold text-foreground">Welcome back, {userProfile?.full_name || "Student"}!</h1>
               <p className="text-muted-foreground mt-1">Ready to continue your learning journey?</p>
             </div>
             <div className="flex gap-3">
@@ -211,7 +228,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-foreground">{stats.totalQuizzes}</div>
-                <p className="text-xs text-muted-foreground">+3 from last week</p>
+                <p className="text-xs text-muted-foreground">Quizzes completed</p>
               </CardContent>
             </Card>
 
@@ -221,8 +238,8 @@ export default function DashboardPage() {
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-foreground">{stats.averageScore}%</div>
-                <p className="text-xs text-muted-foreground">+5% from last week</p>
+                <div className="text-2xl font-bold text-foreground">{Math.round(stats.averageScore)}%</div>
+                <p className="text-xs text-muted-foreground">Overall performance</p>
               </CardContent>
             </Card>
 

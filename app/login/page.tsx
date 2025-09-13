@@ -8,12 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Brain, Eye, EyeOff, Mail, Lock } from "lucide-react"
+import { Brain, Eye, EyeOff, User, Lock } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { signInWithUsername } from "@/lib/auth/auth-helpers"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -25,20 +26,15 @@ export default function LoginPage() {
     setError("")
     setIsLoading(true)
 
-    // Simulate authentication
     try {
-      if (!email || !password) {
-        throw new Error("Please fill in all fields")
+      if (!username || !password) {
+        throw new Error("Por favor completa todos los campos")
       }
 
-      // Mock authentication - in real app, this would call your auth API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Simulate successful login
-      localStorage.setItem("user", JSON.stringify({ email, name: "Student" }))
+      await signInWithUsername({ username, password })
       router.push("/dashboard")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed")
+      setError(err instanceof Error ? err.message : "Error de inicio de sesión")
     } finally {
       setIsLoading(false)
     }
@@ -55,16 +51,14 @@ export default function LoginPage() {
             </div>
             <span className="text-2xl font-bold text-foreground">QuizMaster</span>
           </Link>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to continue your learning journey</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Sign In</h1>
+          <p className="text-muted-foreground">Enter your account to continue learning</p>
         </div>
 
         <Card className="border-border">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
-            <CardDescription className="text-center">
-              Enter your email and password to access your account
-            </CardDescription>
+            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
+            <CardDescription className="text-center">Enter your credentials to access</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,15 +69,15 @@ export default function LoginPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="student@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="username"
+                    type="text"
+                    placeholder="your_username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     className="pl-10"
                     required
                   />
@@ -97,7 +91,7 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder="Your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10"
@@ -120,7 +114,7 @@ export default function LoginPage() {
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing In..." : "Sign In"}
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
 
               <div className="relative">

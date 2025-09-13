@@ -16,6 +16,9 @@ import { LiveRegion } from "@/components/live-region"
 import { Wand2, Plus, Trash2, Edit, Save, Eye, Lightbulb, Settings, BookOpen, Target, Clock } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
+import { createQuiz, createQuestion } from "@/lib/database/quiz-operations"
+// Remove unused import for now
 
 interface Question {
   id: string
@@ -30,7 +33,7 @@ interface Question {
 interface QuizData {
   title: string
   description: string
-  topic: string
+  subject: "math" | "physics" | "general"
   difficulty: "easy" | "medium" | "hard"
   estimatedTime: number
   isPublic: boolean
@@ -38,21 +41,15 @@ interface QuizData {
   questions: Question[]
 }
 
-const topics = [
-  "Programming",
-  "Mathematics",
-  "History",
-  "Language",
-  "Science",
-  "Art",
-  "Music",
-  "Business",
-  "Health",
-  "Other",
+const subjects = [
+  { value: "math", label: "Mathematics" },
+  { value: "physics", label: "Physics" },
+  { value: "general", label: "General Knowledge" },
 ]
 
 export default function CreateQuizPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("generate")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -64,7 +61,7 @@ export default function CreateQuizPage() {
   const [quizData, setQuizData] = useState<QuizData>({
     title: "",
     description: "",
-    topic: "",
+    subject: "general",
     difficulty: "medium",
     estimatedTime: 10,
     isPublic: true,
@@ -214,23 +211,50 @@ export default function CreateQuizPage() {
 
   const saveQuiz = async () => {
     if (!validateForm()) {
-      setLiveMessage("Please fix the form errors before saving")
+      setLiveMessage("Please fix form errors before saving")
+      return
+    }
+
+    if (!user) {
+      setLiveMessage("You must be authenticated to create a quiz")
       return
     }
 
     setIsSaving(true)
     setLiveMessage("Saving your quiz...")
 
-    // Simulate saving to API
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      // Create quiz in database
+      const quiz = await createQuiz({
+        title: quizData.title,
+        description: quizData.description,
+        subject: quizData.subject,
+        difficulty: quizData.difficulty as 'easy' | 'medium' | 'hard',
+        is_published: quizData.isPublic
+      })
 
-    // Save to localStorage for demo
-    const quizId = `custom-${Date.now()}`
-    localStorage.setItem(`custom-quiz-${quizId}`, JSON.stringify({ ...quizData, id: quizId }))
+      if (quiz) {
+        // Create questions
+        for (const questionData of quizData.questions) {
+          await createQuestion({
+            quiz_id: quiz.id,
+            type: 'multiple_choice',
+            prompt: questionData.question,
+            options: questionData.options,
+            answer: questionData.correctAnswer,
+            order_index: quizData.questions.indexOf(questionData)
+          })
+        }
 
-    setIsSaving(false)
-    setLiveMessage("Quiz saved successfully!")
-    router.push(`/quiz/${quizId}`)
+        setLiveMessage("Quiz saved successfully!")
+        router.push(`/quiz/${quiz.id}`)
+      }
+    } catch (error) {
+      console.error('Error saving quiz:', error)
+      setLiveMessage("Error saving quiz. Please try again.")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const previewQuiz = () => {
@@ -310,18 +334,18 @@ export default function CreateQuizPage() {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="topic">Topic</Label>
+                        <Label htmlFor="subject">Subject</Label>
                         <Select
-                          value={quizData.topic}
-                          onValueChange={(value) => setQuizData((prev) => ({ ...prev, topic: value }))}
+                          value={quizData.subject}
+                          onValueChange={(value: "math" | "physics" | "general") => setQuizData((prev) => ({ ...prev, subject: value }))}
                         >
-                          <SelectTrigger id="topic" aria-label="Select quiz topic">
-                            <SelectValue placeholder="Select topic" />
+                          <SelectTrigger id="subject" aria-label="Select quiz subject">
+                            <SelectValue placeholder="Select subject" />
                           </SelectTrigger>
                           <SelectContent>
-                            {topics.map((topic) => (
-                              <SelectItem key={topic} value={topic}>
-                                {topic}
+                            {subjects.map((subject) => (
+                              <SelectItem key={subject.value} value={subject.value}>
+                                {subject.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -330,15 +354,15 @@ export default function CreateQuizPage() {
                     </fieldset>
 
                     <div className="space-y-2">
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        placeholder="Describe what this quiz covers"
-                        value={quizData.description}
-                        onChange={(e) => setQuizData((prev) => ({ ...prev, description: e.target.value }))}
-                        rows={3}
-                        aria-describedby="description-help"
-                      />
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          placeholder="Briefly describe the quiz content"
+                          value={quizData.description}
+                          onChange={(e) => setQuizData((prev) => ({ ...prev, description: e.target.value }))}
+                          rows={3}
+                          aria-describedby="description-help"
+                        />
                       <div id="description-help" className="text-xs text-muted-foreground">
                         Help learners understand what they'll be tested on
                       </div>
@@ -580,10 +604,10 @@ export default function CreateQuizPage() {
                       <Clock className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                       <span>~{quizData.estimatedTime} minutes</span>
                     </div>
-                    {quizData.topic && (
+                    {quizData.subject && (
                       <div className="flex items-center gap-2 text-sm">
                         <BookOpen className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                        <span>{quizData.topic}</span>
+                        <span>{subjects.find(s => s.value === quizData.subject)?.label}</span>
                       </div>
                     )}
                   </div>
