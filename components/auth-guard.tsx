@@ -51,7 +51,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-4">
               <Brain className="w-8 h-8 text-primary-foreground animate-pulse" />
             </div>
-            <CardTitle className="text-xl">Cargando QuizMaster</CardTitle>
+            <CardTitle className="text-xl">Cargando Luminara</CardTitle>
             <CardDescription>Verificando tu autenticación...</CardDescription>
           </CardHeader>
           <CardContent>

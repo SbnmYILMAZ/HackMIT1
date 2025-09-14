@@ -87,10 +87,12 @@ function LoginPageContent() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Brain className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-2xl font-bold text-foreground">QuizMaster</span>
+            <img 
+              src="/logo_final.png" 
+              alt="Luminara Logo" 
+              className="w-10 h-10 object-contain"
+            />
+            <span className="text-2xl font-bold text-foreground">Luminara</span>
           </Link>
           <h1 className="text-3xl font-bold text-foreground mb-2">Sign In</h1>
           <p className="text-muted-foreground">Enter your account to continue learning</p>
@@ -213,8 +215,12 @@ export default function LoginPage() {
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <div className="w-5 h-5 bg-primary-foreground rounded" />
+          <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <img 
+              src="/logo_final.png" 
+              alt="Luminara Logo" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
           <p className="text-muted-foreground">Loading...</p>
         </div>

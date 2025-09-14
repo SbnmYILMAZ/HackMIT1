@@ -135,7 +135,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <Brain className="w-5 h-5 text-primary-foreground" aria-hidden="true" />
                 </div>
-                <span className="text-xl font-bold text-foreground">QuizMaster</span>
+                <span className="text-xl font-bold text-foreground">Luminara</span>
               </div>
               <nav className="space-y-2" id="mobile-navigation" aria-label="Main navigation">
                 <NavigationItems />
@@ -144,11 +144,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </Sheet>
 
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2" aria-label="QuizMaster home">
+          <Link href="/dashboard" className="flex items-center gap-2" aria-label="Luminara home">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Brain className="w-5 h-5 text-primary-foreground" aria-hidden="true" />
             </div>
-            <span className="text-xl font-bold text-foreground hidden sm:block">QuizMaster</span>
+            <span className="text-xl font-bold text-foreground hidden sm:block">Luminara</span>
           </Link>
 
           <div className="flex-1" />
@@ -295,7 +295,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </nav>
           <div className="p-4 border-t border-border">
             <div className="text-xs text-muted-foreground text-center">
-              QuizMaster v2.0
+            Luminara v2.0
             </div>
           </div>
         </aside>
