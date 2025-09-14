@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/server"
 import { z } from "zod"
 import { getAuth } from "@/lib/auth"
+import type { Database } from "@/lib/types/database"
 
 const createSchema = z.object({
   title: z.string().min(1),
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = createSchema.parse(body)
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from("quizzes")
       .insert({
         title: parsed.title,

@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { Database } from '@/lib/types/database'
 import { validateEnvVars, env } from '@/lib/env'
@@ -34,17 +35,13 @@ export const createClient = () => {
 }
 
 // Admin client for server-side operations
-export const supabaseAdmin = createServerClient<Database>(
+export const supabaseAdmin = createSupabaseClient<Database>(
   env.supabase.url!,
   env.supabase.serviceRoleKey!,
   {
-    cookies: {
-      getAll() {
-        return []
-      },
-      setAll() {
-        // No-op for admin client
-      },
-    },
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
   }
 )

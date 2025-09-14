@@ -23,7 +23,7 @@ export async function getAuth(req: NextRequest): Promise<AuthUser> {
   }
 
   // Get user profile to determine role
-  const { data: profile } = await supabase
+  const { data: profile } = await (supabase as any)
     .from('profiles')
     .select('role')
     .eq('id', user.id)
