@@ -23,134 +23,30 @@ import {
   Music,
 } from "lucide-react"
 import Link from "next/link"
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { fetchQuizzes } from "@/lib/api/quiz-api"
+import type { SubjectType, DifficultyType } from "@/lib/types/database"
 
 interface Quiz {
   id: string
   title: string
-  description: string
-  subject: "math" | "physics" | "general"
-  difficulty: "easy" | "medium" | "hard"
-  questionCount: number
-  estimatedTime: number
-  rating: number
-  completions: number
-  author: string
-  tags: string[]
-  isPopular?: boolean
-  isNew?: boolean
+  description?: string
+  subject: SubjectType
+  difficulty: DifficultyType
+  is_published: boolean
+  created_at: string
+  updated_at: string
+  profiles?: {
+    id: string
+    username?: string
+    full_name?: string
+  } | null
+  questions?: { id: string }[]
+  _count?: {
+    questions: number
+    attempts: number
+  }
 }
-
-const mockQuizzes: Quiz[] = [
-  {
-    id: "1",
-    title: "Calculus Fundamentals",
-    description: "Test your knowledge of calculus basics including derivatives, integrals, and limits.",
-    subject: "math",
-    difficulty: "medium",
-    questionCount: 15,
-    estimatedTime: 12,
-    rating: 4.8,
-    completions: 1234,
-    author: "MathMaster",
-    tags: ["calculus", "mathematics", "derivatives"],
-    isPopular: true,
-  },
-  {
-    id: "2",
-    title: "Classical Mechanics",
-    description: "Explore the fundamental principles of classical mechanics and motion.",
-    subject: "physics",
-    difficulty: "hard",
-    questionCount: 20,
-    estimatedTime: 18,
-    rating: 4.6,
-    completions: 892,
-    author: "PhysicsPro",
-    tags: ["physics", "mechanics", "motion"],
-  },
-  {
-    id: "3",
-    title: "Basic Algebra",
-    description: "Master the fundamentals of algebra with equations, variables, and problem-solving.",
-    subject: "math",
-    difficulty: "easy",
-    questionCount: 12,
-    estimatedTime: 10,
-    rating: 4.9,
-    completions: 2156,
-    author: "MathWiz",
-    tags: ["math", "algebra", "equations"],
-    isNew: true,
-  },
-  {
-    id: "4",
-    title: "General Knowledge Quiz",
-    description: "Test your knowledge across various subjects including history, geography, and culture.",
-    subject: "general",
-    difficulty: "medium",
-    questionCount: 18,
-    estimatedTime: 15,
-    rating: 4.7,
-    completions: 1567,
-    author: "QuizMaster",
-    tags: ["general", "knowledge", "trivia"],
-  },
-  {
-    id: "5",
-    title: "Advanced Physics",
-    description: "Explore advanced physics concepts including quantum mechanics and relativity.",
-    subject: "physics",
-    difficulty: "hard",
-    questionCount: 16,
-    estimatedTime: 14,
-    rating: 4.8,
-    completions: 987,
-    author: "PhysicsExpert",
-    tags: ["physics", "quantum", "relativity"],
-    isPopular: true,
-  },
-  {
-    id: "6",
-    title: "World Geography",
-    description: "Test your knowledge of countries, capitals, and geographical features.",
-    subject: "general",
-    difficulty: "medium",
-    questionCount: 14,
-    estimatedTime: 12,
-    rating: 4.5,
-    completions: 654,
-    author: "GeoExpert",
-    tags: ["geography", "general", "world"],
-  },
-  {
-    id: "7",
-    title: "Advanced Calculus",
-    description: "Master advanced calculus concepts including multivariable calculus and differential equations.",
-    subject: "math",
-    difficulty: "hard",
-    questionCount: 22,
-    estimatedTime: 20,
-    rating: 4.4,
-    completions: 743,
-    author: "MathExpert",
-    tags: ["calculus", "mathematics", "advanced"],
-  },
-  {
-    id: "8",
-    title: "General Science Quiz",
-    description: "Test your knowledge across various scientific disciplines and discoveries.",
-    subject: "general",
-    difficulty: "easy",
-    questionCount: 10,
-    estimatedTime: 8,
-    rating: 4.6,
-    completions: 432,
-    author: "ScienceFan",
-    tags: ["science", "general", "discovery"],
-    isNew: true,
-  },
-]
 
 const subjects = ["All", "Mathematics", "Physics", "General Knowledge"]
 const difficulties = ["All", "easy", "medium", "hard"]
@@ -182,17 +78,38 @@ const getDifficultyColor = (difficulty: string) => {
 }
 
 export default function CatalogPage() {
+  const [quizzes, setQuizzes] = useState<Quiz[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedSubject, setSelectedSubject] = useState("All")
   const [selectedDifficulty, setSelectedDifficulty] = useState("All")
   const [sortBy, setSortBy] = useState("popular")
 
+  // Load quizzes on component mount
+  useEffect(() => {
+    const loadQuizzes = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await fetchQuizzes({ published: true })
+        setQuizzes(data)
+      } catch (err) {
+        console.error('Error loading quizzes:', err)
+        setError('Failed to load quizzes. Please try again later.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadQuizzes()
+  }, [])
+
   const filteredAndSortedQuizzes = useMemo(() => {
-    const filtered = mockQuizzes.filter((quiz) => {
+    const filtered = quizzes.filter((quiz) => {
       const matchesSearch =
         quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        quiz.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        quiz.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        (quiz.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
 
       const matchesSubject = selectedSubject === "All" || 
         (quiz.subject === "math" && selectedSubject === "Mathematics") ||
@@ -207,11 +124,12 @@ export default function CatalogPage() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "popular":
-          return b.completions - a.completions
+          return (b._count?.attempts || 0) - (a._count?.attempts || 0)
         case "rating":
-          return b.rating - a.rating
+          // For now, sort by creation date as we don't have ratings yet
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         case "newest":
-          return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0)
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         case "difficulty":
           const difficultyOrder = { easy: 1, medium: 2, hard: 3 }
           return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
@@ -221,7 +139,7 @@ export default function CatalogPage() {
     })
 
     return filtered
-  }, [searchQuery, selectedSubject, selectedDifficulty, sortBy])
+  }, [quizzes, searchQuery, selectedSubject, selectedDifficulty, sortBy])
 
   return (
     <AuthGuard>
@@ -329,129 +247,156 @@ export default function CatalogPage() {
             </CardContent>
           </Card>
 
+          {/* Loading State */}
+          {loading && (
+            <Card className="border-border">
+              <CardContent className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading quizzes...</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <Card className="border-border border-red-200">
+              <CardContent className="text-center py-12">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-red-600 text-xl">!</span>
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Error Loading Quizzes</h3>
+                <p className="text-muted-foreground mb-4">{error}</p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                >
+                  Try Again
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Results Count */}
-          <div className="flex items-center justify-between">
-            <p className="text-muted-foreground">
-              Showing {filteredAndSortedQuizzes.length} of {mockQuizzes.length} quizzes
-            </p>
-          </div>
+          {!loading && !error && (
+            <div className="flex items-center justify-between">
+              <p className="text-muted-foreground">
+                Showing {filteredAndSortedQuizzes.length} of {quizzes.length} quizzes
+              </p>
+            </div>
+          )}
 
           {/* Quiz Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAndSortedQuizzes.map((quiz) => {
-              const SubjectIcon = getSubjectIcon(quiz.subject)
-              return (
-                <Card key={quiz.id} className="border-border hover:shadow-lg transition-all duration-200 group">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <SubjectIcon className="w-4 h-4 text-primary" />
-                        </div>
-                        <Badge className={getDifficultyColor(quiz.difficulty)} variant="secondary">
-                          {quiz.difficulty}
-                        </Badge>
-                      </div>
-                      <div className="flex gap-1">
-                        {quiz.isPopular && (
-                          <Badge
-                            className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"
-                            variant="secondary"
-                          >
-                            Popular
-                          </Badge>
-                        )}
-                        {quiz.isNew && (
-                          <Badge
-                            className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                            variant="secondary"
-                          >
-                            New
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    <CardTitle className="text-lg group-hover:text-primary transition-colors">{quiz.title}</CardTitle>
-                    <CardDescription className="text-sm line-clamp-2">{quiz.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-4">
-                      {/* Quiz Stats */}
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <BookOpen className="w-4 h-4" />
-                            <span>{quiz.questionCount} questions</span>
+          {!loading && !error && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredAndSortedQuizzes.map((quiz) => {
+                const SubjectIcon = getSubjectIcon(quiz.subject)
+                const questionCount = quiz.questions?.length || quiz._count?.questions || 0
+                const completions = quiz._count?.attempts || 0
+                const isNew = new Date(quiz.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
+                const isPopular = completions > 100
+                
+                return (
+                  <Card key={quiz.id} className="border-border hover:shadow-lg transition-all duration-200 group">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <SubjectIcon className="w-4 h-4 text-primary" />
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>{quiz.estimatedTime} min</span>
+                          <Badge className={getDifficultyColor(quiz.difficulty)} variant="secondary">
+                            {quiz.difficulty}
+                          </Badge>
+                        </div>
+                        <div className="flex gap-1">
+                          {isPopular && (
+                            <Badge
+                              className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"
+                              variant="secondary"
+                            >
+                              Popular
+                            </Badge>
+                          )}
+                          {isNew && (
+                            <Badge
+                              className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                              variant="secondary"
+                            >
+                              New
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <CardTitle className="text-lg group-hover:text-primary transition-colors">{quiz.title}</CardTitle>
+                      <CardDescription className="text-sm line-clamp-2">{quiz.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-4">
+                        {/* Quiz Stats */}
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1">
+                              <BookOpen className="w-4 h-4" />
+                              <span>{questionCount} questions</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              <span>{Math.max(1, Math.ceil(questionCount * 1.5))} min</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Rating and Completions */}
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-medium">{quiz.rating}</span>
+                        {/* Completions */}
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Users className="w-4 h-4" />
+                            <span>{completions.toLocaleString()} completed</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Users className="w-4 h-4" />
-                          <span>{quiz.completions.toLocaleString()} completed</span>
+
+                        {/* Author and Action */}
+                        <div className="flex items-center justify-between pt-2 border-t border-border">
+                          <span className="text-sm text-muted-foreground">
+                            by {quiz.profiles?.username || quiz.profiles?.full_name || 'Anonymous'}
+                          </span>
+                          <Button size="sm" asChild>
+                            <Link href={`/quiz/${quiz.id}`}>
+                              <Play className="w-4 h-4 mr-1" />
+                              Start Quiz
+                            </Link>
+                          </Button>
                         </div>
                       </div>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1">
-                        {quiz.tags.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                        {quiz.tags.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{quiz.tags.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Author and Action */}
-                      <div className="flex items-center justify-between pt-2 border-t border-border">
-                        <span className="text-sm text-muted-foreground">by {quiz.author}</span>
-                        <Button size="sm" asChild>
-                          <Link href={`/quiz/${quiz.id}`}>
-                            <Play className="w-4 h-4 mr-1" />
-                            Start Quiz
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
 
           {/* No Results */}
-          {filteredAndSortedQuizzes.length === 0 && (
+          {!loading && !error && filteredAndSortedQuizzes.length === 0 && (
             <Card className="border-border">
               <CardContent className="text-center py-12">
                 <Filter className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">No quizzes found</h3>
                 <p className="text-muted-foreground mb-4">
-                  Try adjusting your search criteria or browse all available quizzes.
+                  {quizzes.length === 0 
+                    ? "No quizzes are available yet. Check back later or create your own!"
+                    : "Try adjusting your search criteria or browse all available quizzes."
+                  }
                 </p>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearchQuery("")
-                    setSelectedSubject("All")
-                    setSelectedDifficulty("All")
-                  }}
-                >
-                  Clear Filters
-                </Button>
+                {quizzes.length > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchQuery("")
+                      setSelectedSubject("All")
+                      setSelectedDifficulty("All")
+                    }}
+                  >
+                    Clear Filters
+                  </Button>
+                )}
               </CardContent>
             </Card>
           )}

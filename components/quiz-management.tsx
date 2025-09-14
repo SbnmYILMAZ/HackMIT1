@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { SubjectType, DifficultyType } from "@/lib/types/database"
+import { fetchQuizzes, QuizWithProfile } from "@/lib/api/quiz-api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -36,13 +37,13 @@ import {
 
 // Quiz interface
 interface QuizData {
-  id: number
+  id: string
   title: string
   subject: SubjectType
   difficulty: DifficultyType
   status: 'published' | 'pending' | 'draft' | 'flagged' | 'rejected'
   author: string
-  authorId: number
+  authorId: string
   createdAt: string
   updatedAt: string
   questions: number
@@ -50,104 +51,73 @@ interface QuizData {
   averageScore: number
   reports: number
   featured: boolean
+  is_published: boolean
+  profiles?: {
+    id: string
+    username?: string
+    full_name?: string
+  } | null
+  _count?: {
+    questions: number
+    attempts: number
+  }
 }
 
-// Mock quiz data
-const mockQuizzes: QuizData[] = [
-  {
-    id: 1,
-    title: "Advanced Calculus Fundamentals",
-    subject: "math",
-    difficulty: "hard",
-    status: "published",
-    author: "Dr. Smith",
-    authorId: 2,
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-18",
-    questions: 25,
-    attempts: 1247,
-    averageScore: 73.5,
-    reports: 0,
-    featured: true,
-  },
-  {
-    id: 2,
-    title: "Basic Chemistry Quiz",
-    subject: "physics",
-    difficulty: "easy",
-    status: "pending",
-    author: "Alice Johnson",
-    authorId: 1,
-    createdAt: "2024-01-20",
-    updatedAt: "2024-01-20",
-    questions: 15,
-    attempts: 0,
-    averageScore: 0,
-    reports: 0,
-    featured: false,
-  },
-  {
-    id: 3,
-    title: "World War II History",
-    subject: "general",
-    difficulty: "medium",
-    status: "published",
-    author: "Prof. Davis",
-    authorId: 3,
-    createdAt: "2024-01-10",
-    updatedAt: "2024-01-12",
-    questions: 30,
-    attempts: 892,
-    averageScore: 81.2,
-    reports: 2,
-    featured: false,
-  },
-  {
-    id: 4,
-    title: "Inappropriate Content Quiz",
-    subject: "general",
-    difficulty: "easy",
-    status: "flagged",
-    author: "BadUser123",
-    authorId: 4,
-    createdAt: "2024-01-19",
-    updatedAt: "2024-01-19",
-    questions: 10,
-    attempts: 5,
-    averageScore: 45.0,
-    reports: 8,
-    featured: false,
-  },
-  {
-    id: 5,
-    title: "Shakespeare Literature",
-    subject: "general",
-    difficulty: "medium",
-    status: "draft",
-    author: "Carol Wilson",
-    authorId: 5,
-    createdAt: "2024-01-18",
-    updatedAt: "2024-01-20",
-    questions: 20,
-    attempts: 0,
-    averageScore: 0,
-    reports: 0,
-    featured: false,
-  },
-]
 
 export function QuizManagement() {
-  const [quizzes, setQuizzes] = useState<QuizData[]>(mockQuizzes)
-  const [filteredQuizzes, setFilteredQuizzes] = useState<QuizData[]>(mockQuizzes)
+  const [quizzes, setQuizzes] = useState<QuizData[]>([])
+  const [filteredQuizzes, setFilteredQuizzes] = useState<QuizData[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [subjectFilter, setSubjectFilter] = useState("all")
   const [selectedQuiz, setSelectedQuiz] = useState<QuizData | null>(null)
   const [activeTab, setActiveTab] = useState("all")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Load quizzes from API
+  useEffect(() => {
+    const loadQuizzes = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        const data = await fetchQuizzes({})
+        
+        // Transform API data to QuizData format
+        const transformedQuizzes: QuizData[] = data.map((quiz: QuizWithProfile) => ({
+          id: quiz.id,
+          title: quiz.title,
+          subject: quiz.subject,
+          difficulty: quiz.difficulty,
+          status: quiz.is_published ? 'published' : 'draft',
+          author: quiz.profiles?.username || quiz.profiles?.full_name || 'Anonymous',
+          authorId: quiz.profiles?.id || 'unknown',
+          createdAt: quiz.created_at,
+          updatedAt: quiz.updated_at,
+          questions: 0, // Would need questions count from API
+          attempts: 0, // Would need attempt stats API
+          averageScore: 0, // Would need attempt stats API
+          reports: 0, // Would need reports API
+          featured: false, // Would need featured flag in DB
+          is_published: quiz.is_published,
+          profiles: quiz.profiles
+        }))
+        
+        setQuizzes(transformedQuizzes)
+        setFilteredQuizzes(transformedQuizzes)
+      } catch (err) {
+        console.error('Error loading quizzes:', err)
+        setError('Failed to load quizzes')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadQuizzes()
+  }, [])
 
   useEffect(() => {
-    let filtered = quizzes
+    let filtered = [...quizzes]
 
     // Apply tab filter
     if (activeTab !== "all") {
@@ -226,37 +196,62 @@ export function QuizManagement() {
     )
   }
 
-  const handleQuizAction = (action: string, quizId: number) => {
-    setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setQuizzes((prevQuizzes) =>
-        prevQuizzes
-          .map((quiz) => {
-            if (quiz.id === quizId) {
-              switch (action) {
-                case "approve":
-                  return { ...quiz, status: "published" as const }
-                case "reject":
-                  return { ...quiz, status: "rejected" as const }
-                case "flag":
-                  return { ...quiz, status: "flagged" as const, reports: quiz.reports + 1 }
-                case "unflag":
-                  return { ...quiz, status: "published" as const, reports: 0 }
-                case "feature":
-                  return { ...quiz, featured: !quiz.featured }
-                case "delete":
-                  return quiz // Return quiz to maintain type, will be filtered out
-                default:
-                  return quiz
-              }
-            }
-            return quiz
-          })
-          .filter((quiz) => action !== "delete" || quiz.id !== quizId),
-      )
+  const handleQuizAction = async (action: string, quizId: string) => {
+    try {
+      setIsLoading(true)
+      
+      // In a real app, these would be API calls
+      switch (action) {
+        case "view":
+          // Navigate to quiz view
+          window.open(`/quiz/${quizId}`, '_blank')
+          break
+        case "edit":
+          // Navigate to quiz edit
+          window.open(`/quiz/${quizId}/edit`, '_blank')
+          break
+        case "approve":
+        case "reject":
+        case "flag":
+        case "unflag":
+        case "feature":
+        case "delete":
+          // Update local state for demo purposes
+          setQuizzes((prevQuizzes) =>
+            prevQuizzes
+              .map((quiz) => {
+                if (quiz.id === quizId) {
+                  switch (action) {
+                    case "approve":
+                      return { ...quiz, status: "published" as const }
+                    case "reject":
+                      return { ...quiz, status: "rejected" as const }
+                    case "flag":
+                      return { ...quiz, status: "flagged" as const, reports: quiz.reports + 1 }
+                    case "unflag":
+                      return { ...quiz, status: "published" as const, reports: 0 }
+                    case "feature":
+                      return { ...quiz, featured: !quiz.featured }
+                    case "delete":
+                      return quiz // Will be filtered out below
+                    default:
+                      return quiz
+                  }
+                }
+                return quiz
+              })
+              .filter((quiz) => action !== "delete" || quiz.id !== quizId)
+          )
+          break
+        default:
+          console.warn(`Unknown action: ${action}`)
+      }
+    } catch (error) {
+      console.error('Error performing quiz action:', error)
+      setError(`Failed to ${action} quiz`)
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   const stats = {
@@ -404,13 +399,44 @@ export function QuizManagement() {
         </Card>
 
         <TabsContent value={activeTab} className="space-y-6">
+          {/* Loading State */}
+          {isLoading && (
+            <Card className="bg-slate-900 border-slate-800">
+              <CardContent className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-slate-400">Cargando quizzes...</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <Card className="bg-slate-900 border-slate-800 border-red-500/20">
+              <CardContent className="text-center py-12">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-red-600 text-xl">!</span>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Error al cargar quizzes</h3>
+                <p className="text-slate-400 mb-4">{error}</p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                >
+                  Intentar de nuevo
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Quizzes Table */}
-          <Card className="bg-slate-900 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white">Quizzes ({filteredQuizzes.length})</CardTitle>
-              <CardDescription className="text-slate-400">Manage quiz content and moderation</CardDescription>
-            </CardHeader>
-            <CardContent>
+          {!isLoading && !error && (
+            <Card className="bg-slate-900 border-slate-800">
+              <CardHeader>
+                <CardTitle className="text-white">Quizzes ({filteredQuizzes.length})</CardTitle>
+                <CardDescription className="text-slate-400">Gestionar contenido y moderación de quizzes</CardDescription>
+              </CardHeader>
+              <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow className="border-slate-800">
@@ -475,7 +501,13 @@ export function QuizManagement() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-slate-400">{quiz.createdAt}</TableCell>
+                      <TableCell className="text-slate-400">
+                        {new Date(quiz.createdAt).toLocaleDateString('es-ES', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </TableCell>
                       <TableCell>
                         <Dialog>
                           <DialogTrigger asChild>
@@ -490,36 +522,36 @@ export function QuizManagement() {
                           </DialogTrigger>
                           <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl">
                             <DialogHeader>
-                              <DialogTitle>Manage Quiz: {quiz.title}</DialogTitle>
+                              <DialogTitle>Gestionar Quiz: {quiz.title}</DialogTitle>
                               <DialogDescription className="text-slate-400">
-                                Choose an action to perform on this quiz
+                                Selecciona una acción para realizar en este quiz
                               </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6">
                               {/* Quiz Details */}
                               <div className="grid grid-cols-2 gap-4 p-4 bg-slate-800 rounded-lg">
                                 <div>
-                                  <p className="text-slate-400 text-sm">Author</p>
+                                  <p className="text-slate-400 text-sm">Autor</p>
                                   <p className="text-white">{quiz.author}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 text-sm">Subject</p>
-                                  <p className="text-white">{quiz.subject === "math" ? "Math" : quiz.subject === "physics" ? "Physics" : "General"}</p>
+                                  <p className="text-slate-400 text-sm">Materia</p>
+                                  <p className="text-white">{quiz.subject === "math" ? "Matemáticas" : quiz.subject === "physics" ? "Física" : "General"}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 text-sm">Questions</p>
+                                  <p className="text-slate-400 text-sm">Preguntas</p>
                                   <p className="text-white">{quiz.questions}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 text-sm">Attempts</p>
+                                  <p className="text-slate-400 text-sm">Intentos</p>
                                   <p className="text-white">{quiz.attempts}</p>
                                 </div>
                                 {quiz.reports > 0 && (
                                   <div className="col-span-2">
-                                    <p className="text-slate-400 text-sm">Reports</p>
+                                    <p className="text-slate-400 text-sm">Reportes</p>
                                     <div className="flex items-center space-x-2">
                                       <AlertTriangle className="w-4 h-4 text-red-400" />
-                                      <p className="text-red-400">{quiz.reports} user reports</p>
+                                      <p className="text-red-400">{quiz.reports} reportes de usuarios</p>
                                     </div>
                                   </div>
                                 )}
@@ -620,10 +652,22 @@ export function QuizManagement() {
                       </TableCell>
                     </TableRow>
                   ))}
+                  {filteredQuizzes.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-12">
+                        <div className="text-slate-400">
+                          <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                          <p className="text-lg mb-2">No se encontraron quizzes</p>
+                          <p className="text-sm">Ajusta los filtros o crea un nuevo quiz</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>
