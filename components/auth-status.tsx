@@ -48,7 +48,7 @@ export function AuthStatus({ children, showWelcome = true }: AuthStatusProps) {
     return (
       <LoadingScreen
         title="Verificando Autenticación"
-        description="Conectando con tu cuenta de QuizMaster..."
+        description="Conectando con tu cuenta de Luminara..."
         showProgress={true}
         progress={authProgress}
       />

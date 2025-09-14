@@ -12,7 +12,7 @@ import { LoadingScreen } from "@/components/ui/loading-screen"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "QuizMaster - Learn Through Interactive Quizzes",
+  title: "Luminara - Learn Through Interactive Quizzes",
   description:
     "An engaging educational platform for creating and taking interactive quizzes with accessibility features"
 }
@@ -31,7 +31,7 @@ export default function RootLayout({
             <Suspense 
               fallback={
                 <LoadingScreen 
-                  title="Cargando QuizMaster" 
+                  title="Cargando Luminara" 
                   description="Preparando tu experiencia de aprendizaje..." 
                   variant="default"
                 />

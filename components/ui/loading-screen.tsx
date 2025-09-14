@@ -34,13 +34,17 @@ export function LoadingScreen({
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md text-center border-0 shadow-xl">
         <CardHeader className="pb-4">
-          <div className="relative w-20 h-20 mx-auto mb-6">
+          <div className="relative w-28 h-28 mx-auto mb-6">
             {/* Animated background circle */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full animate-pulse" />
             
             {/* Main logo container */}
             <div className="relative w-full h-full bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg">
-              <Brain className="w-10 h-10 text-primary-foreground animate-pulse" />
+              <img 
+                src="/logo_final.png" 
+                alt="Luminara Logo" 
+                className="w-16 h-16 object-contain animate-pulse"
+              />
             </div>
             
             {/* Floating sparkles */}

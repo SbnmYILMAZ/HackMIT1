@@ -16,7 +16,7 @@ export function AdminSettings() {
   const [isLoading, setIsLoading] = useState(false)
   const [settings, setSettings] = useState({
     general: {
-      siteName: "QuizMaster",
+      siteName: "Luminara",
       siteDescription: "Master Any Subject with Interactive Learning",
       maintenanceMode: false,
       registrationEnabled: true,

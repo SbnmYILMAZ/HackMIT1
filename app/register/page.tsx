@@ -73,7 +73,7 @@ export default function RegisterPage() {
       // Mostrar toast de éxito
       toast({
         title: "Account created successfully!",
-        description: "Welcome to QuizMaster",
+        description: "Welcome to Luminara",
         variant: "default",
         className: "border-green-200 bg-green-50 text-green-800"
       })
@@ -95,12 +95,14 @@ export default function RegisterPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Brain className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-2xl font-bold text-foreground">QuizMaster</span>
+            <img 
+              src="/logo_final.png" 
+              alt="Luminara Logo" 
+              className="w-10 h-10 object-contain"
+            />
+            <span className="text-2xl font-bold text-foreground">Luminara</span>
           </Link>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Join QuizMaster</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Join Luminara</h1>
           <p className="text-muted-foreground">Create your account and start learning today</p>
         </div>
 
