@@ -18,28 +18,12 @@ export async function GET(
   try {
     const { data, error } = await (supabaseAdmin as any)
       .from("quizzes")
-      .select(`
-        *,
-        profiles!quizzes_created_by_fkey (
-          id,
-          username,
-          full_name
-        ),
-        questions (
-          id,
-          stem,
-          qtype,
-          choices,
-          correct_answer,
-          solution_explained,
-          tags
-        )
-      `)
+      .select("*, profiles:profiles(*), questions(*)")
       .eq("id", params.id)
       .single()
 
     if (error) {
-      return NextResponse.json({ error: "Quiz not found" }, { status: 404 })
+      return NextResponse.json({ error: error.message || "Quiz not found" }, { status: 404 })
     }
 
     return NextResponse.json({ quiz: data })
@@ -81,7 +65,7 @@ export async function PUT(
       .eq("id", params.id)
       .select(`
         *,
-        profiles!quizzes_created_by_fkey (
+        profiles:profiles (
           id,
           username,
           full_name

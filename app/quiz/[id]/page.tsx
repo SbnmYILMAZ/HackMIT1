@@ -22,50 +22,36 @@ import {
   Brain,
   Palette,
   Music,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-// Mock quiz data - in real app this would come from API
-const mockQuizData = {
-  "1": {
-    id: "1",
-    title: "JavaScript Fundamentals",
-    description:
-      "Test your knowledge of JavaScript basics including variables, functions, and control structures. This comprehensive quiz covers essential concepts that every JavaScript developer should know.",
-    subject: "general",
-    difficulty: "medium" as const,
-    questionCount: 15,
-    estimatedTime: 12,
-    rating: 4.8,
-    completions: 1234,
-    author: {
-      name: "CodeMaster",
-      avatar: "/placeholder.svg",
-      bio: "Senior Full-Stack Developer with 8+ years of experience",
-    },
-    tags: ["javascript", "programming", "web-development"],
-    isPopular: true,
-    objectives: [
-      "Understand JavaScript variable declarations and scoping",
-      "Master function definitions and arrow functions",
-      "Learn about control structures and loops",
-      "Grasp object-oriented programming concepts",
-      "Apply asynchronous programming patterns",
-    ],
-    prerequisites: [
-      "Basic understanding of HTML and CSS",
-      "Familiarity with programming concepts",
-      "Text editor or IDE setup",
-    ],
-    recentScores: [
-      { score: 87, total: 15, user: "Alice", date: "2024-01-15" },
-      { score: 92, total: 15, user: "Bob", date: "2024-01-14" },
-      { score: 78, total: 15, user: "Charlie", date: "2024-01-14" },
-      { score: 95, total: 15, user: "Diana", date: "2024-01-13" },
-    ],
-  },
+interface Quiz {
+  id: string
+  title: string
+  description: string
+  subject: string
+  difficulty: string
+  is_published: boolean
+  created_at: string
+  updated_at: string
+  created_by: string
+  profiles: {
+    id: string
+    username: string
+    full_name: string
+  }
+  questions: Array<{
+    id: string
+    stem: string
+    qtype: string
+    choices: any
+    correct_answer: string
+    solution_explained: string
+    tags: string[]
+  }>
 }
 
 const getSubjectIcon = (subject: string) => {
@@ -99,16 +85,63 @@ export default function QuizDetailPage() {
   const router = useRouter()
   const quizId = params.id as string
   const [isStarting, setIsStarting] = useState(false)
+  const [quiz, setQuiz] = useState<Quiz | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const quiz = mockQuizData[quizId as keyof typeof mockQuizData]
+  useEffect(() => {
+    const fetchQuiz = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/quizzes/${quizId}`)
+        
+        if (!response.ok) {
+          throw new Error('Quiz not found')
+        }
+        
+        const data = await response.json()
+        setQuiz(data.quiz)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load quiz')
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  if (!quiz) {
+    if (quizId) {
+      fetchQuiz()
+    }
+  }, [quizId])
+
+  const handleStartQuiz = async () => {
+    setIsStarting(true)
+    // Simulate loading
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    router.push(`/quiz/${quizId}/take`)
+  }
+
+  if (loading) {
+    return (
+      <AuthGuard>
+        <DashboardLayout>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground">Loading quiz...</p>
+            </div>
+          </div>
+        </DashboardLayout>
+      </AuthGuard>
+    )
+  }
+
+  if (error || !quiz) {
     return (
       <AuthGuard>
         <DashboardLayout>
           <div className="text-center py-12">
             <h1 className="text-2xl font-bold text-foreground mb-4">Quiz Not Found</h1>
-            <p className="text-muted-foreground mb-6">The quiz you're looking for doesn't exist.</p>
+            <p className="text-muted-foreground mb-6">{error || "The quiz you're looking for doesn't exist."}</p>
             <Button asChild>
               <Link href="/catalog">Back to Catalog</Link>
             </Button>
@@ -119,15 +152,8 @@ export default function QuizDetailPage() {
   }
 
   const SubjectIcon = getSubjectIcon(quiz.subject)
-  const averageScore =
-    quiz.recentScores.reduce((acc, score) => acc + (score.score / score.total) * 100, 0) / quiz.recentScores.length
-
-  const handleStartQuiz = async () => {
-    setIsStarting(true)
-    // Simulate loading
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    router.push(`/quiz/${quizId}/take`)
-  }
+  const questionCount = quiz.questions?.length || 0
+  const estimatedTime = Math.max(1, Math.ceil(questionCount * 0.8)) // Estimate 0.8 minutes per question
 
   return (
     <AuthGuard>
@@ -158,12 +184,12 @@ export default function QuizDetailPage() {
                         <Badge className="ml-2" variant="outline">
                           {quiz.subject === "math" ? "Math" : quiz.subject === "physics" ? "Physics" : "General"}
                         </Badge>
-                        {quiz.isPopular && (
+                        {quiz.is_published && (
                           <Badge
-                            className="ml-2 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"
+                            className="ml-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                             variant="secondary"
                           >
-                            Popular
+                            Published
                           </Badge>
                         )}
                       </div>
@@ -171,68 +197,43 @@ export default function QuizDetailPage() {
                   </div>
 
                   <CardTitle className="text-3xl text-balance">{quiz.title}</CardTitle>
-                  <CardDescription className="text-lg text-pretty">{quiz.description}</CardDescription>
+                  <CardDescription className="text-lg text-pretty">{quiz.description || "No description available."}</CardDescription>
 
                   {/* Quiz Stats */}
                   <div className="flex flex-wrap gap-6 pt-4 text-sm">
                     <div className="flex items-center gap-2">
                       <BookOpen className="w-4 h-4 text-muted-foreground" />
-                      <span>{quiz.questionCount} questions</span>
+                      <span>{questionCount} questions</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span>{quiz.estimatedTime} minutes</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span>{quiz.rating} rating</span>
+                      <span>{estimatedTime} minutes</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-muted-foreground" />
-                      <span>{quiz.completions.toLocaleString()} completed</span>
+                      <span>Created by {quiz.profiles?.full_name || quiz.profiles?.username || "Unknown"}</span>
                     </div>
                   </div>
                 </CardHeader>
               </Card>
 
-              {/* Learning Objectives */}
-              <Card className="border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5" />
-                    Learning Objectives
-                  </CardTitle>
-                  <CardDescription>What you'll learn from this quiz</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {quiz.objectives.map((objective, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-foreground">{objective}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Prerequisites */}
-              <Card className="border-border">
-                <CardHeader>
-                  <CardTitle>Prerequisites</CardTitle>
-                  <CardDescription>What you should know before taking this quiz</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {quiz.prerequisites.map((prerequisite, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-secondary rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-foreground">{prerequisite}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              {/* Questions Preview */}
+              {questionCount > 0 && (
+                <Card className="border-border">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="w-5 h-5" />
+                      Questions Overview
+                    </CardTitle>
+                    <CardDescription>This quiz contains {questionCount} questions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-sm text-muted-foreground">
+                      <p>Ready to test your knowledge? Click "Start Quiz" to begin!</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -245,8 +246,8 @@ export default function QuizDetailPage() {
                     {isStarting ? "Starting..." : "Start Quiz"}
                   </Button>
                   <div className="text-center text-sm text-muted-foreground">
-                    <p>Estimated time: {quiz.estimatedTime} minutes</p>
-                    <p>{quiz.questionCount} questions</p>
+                    <p>Estimated time: {estimatedTime} minutes</p>
+                    <p>{questionCount} questions</p>
                   </div>
                 </CardContent>
               </Card>
@@ -259,55 +260,44 @@ export default function QuizDetailPage() {
                 <CardContent>
                   <div className="flex items-center gap-3 mb-3">
                     <Avatar>
-                      <AvatarImage src={quiz.author.avatar || "/placeholder.svg"} alt={quiz.author.name} />
                       <AvatarFallback className="bg-primary text-primary-foreground">
-                        {quiz.author.name.charAt(0)}
+                        {(quiz.profiles?.full_name || quiz.profiles?.username || "U").charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h4 className="font-medium text-foreground">{quiz.author.name}</h4>
+                      <h4 className="font-medium text-foreground">
+                        {quiz.profiles?.full_name || quiz.profiles?.username || "Unknown Author"}
+                      </h4>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{quiz.author.bio}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Created on {new Date(quiz.created_at).toLocaleDateString()}
+                  </p>
                 </CardContent>
               </Card>
 
-              {/* Recent Performance */}
+              {/* Quiz Info */}
               <Card className="border-border">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Trophy className="w-5 h-5" />
-                    Recent Performance
+                    Quiz Details
                   </CardTitle>
-                  <CardDescription>Average score: {Math.round(averageScore)}%</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <Progress value={averageScore} className="h-2" />
-                    <div className="space-y-2">
-                      {quiz.recentScores.slice(0, 3).map((score, index) => (
-                        <div key={index} className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">{score.user}</span>
-                          <span className="font-medium">{Math.round((score.score / score.total) * 100)}%</span>
-                        </div>
-                      ))}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Subject:</span>
+                      <span className="font-medium capitalize">{quiz.subject}</span>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Tags */}
-              <Card className="border-border">
-                <CardHeader>
-                  <CardTitle className="text-lg">Tags</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {quiz.tags.map((tag) => (
-                      <Badge key={tag} variant="outline">
-                        {tag}
-                      </Badge>
-                    ))}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Difficulty:</span>
+                      <span className="font-medium capitalize">{quiz.difficulty}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Status:</span>
+                      <span className="font-medium">{quiz.is_published ? "Published" : "Draft"}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

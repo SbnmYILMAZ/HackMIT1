@@ -20,14 +20,9 @@ export async function GET(req: NextRequest) {
 
     let query = supabaseAdmin
       .from("quizzes")
-      .select(`
-        *,
-        profiles (
-          id,
-          username,
-          full_name
-        )
-      `)
+      // Use alias syntax for the profiles relationship via created_by FK
+      .select("*, profiles:profiles(*)")
+      .order("created_at", { ascending: false })
 
     // Apply filters
     if (subject && subject !== "all") {
@@ -37,10 +32,11 @@ export async function GET(req: NextRequest) {
       query = query.eq("difficulty", difficulty)
     }
     if (published !== null) {
+      // Map published parameter to is_published column
       query = query.eq("is_published", published === "true")
     }
 
-    const { data, error } = await query.order("created_at", { ascending: false })
+    const { data, error } = await query
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
@@ -48,7 +44,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ quizzes: data })
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: e?.message ?? "Bad request" }, { status: 400 })
   }
 }
 
