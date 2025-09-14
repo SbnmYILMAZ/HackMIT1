@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth/auth-helpers";
+import type { Quiz, Attempt, Profile } from "@/lib/types/database";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -14,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       .from("quizzes")
       .select("id, created_by, is_published")
       .eq("id", params.id)
-      .single();
+      .single() as { data: Pick<Quiz, 'id' | 'created_by' | 'is_published'> | null; error: any };
 
     if (quizError || !quiz) {
       return NextResponse.json({ error: "Quiz no encontrado" }, { status: 404 });
@@ -26,7 +27,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       .from("attempts")
       .select(`
         *,
-        profiles!attempts_user_id_fkey (
+        profiles (
           id,
           username,
           full_name
@@ -43,7 +44,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       query = query.eq("user_id", auth.user.id);
     }
 
-    const { data: attempts, error } = await query;
+    const { data: attempts, error } = await query as { data: (Attempt & { profiles?: Profile })[] | null; error: any };
 
     if (error) {
       console.error("Error fetching quiz attempts:", error);
