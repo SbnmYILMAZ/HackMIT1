@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
-import { createClient } from '@/lib/supabase/server'
-import type { SignUpWithUsernameData, SignInWithUsernameData, AuthUser } from '@/lib/types/database'
+import type { SignUpWithUsernameData, SignInWithUsernameData, AuthUser, Database } from '@/lib/types/database'
 
 // Función para registrarse con username
 export async function signUpWithUsername(data: SignUpWithUsernameData) {
@@ -47,14 +46,20 @@ export async function signInWithUsername(data: SignInWithUsernameData) {
       .eq('username', data.username)
       .single()
     
-    type ProfileResult = { email: string | null; id: string } | null
+    type ProfileLoginData = { email: string | null; id: string } | null
+    
+    if (profileError || !profile) {
+      throw new Error('Nombre de usuario no encontrado')
+    }
 
-    if (profileError || !profile?.email) {
+    const typedProfile = profile as { email: string | null; id: string }
+    
+    if (!typedProfile.email) {
       throw new Error('Nombre de usuario no encontrado')
     }
 
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: profile.email,
+      email: typedProfile.email,
       password: data.password,
     })
 
@@ -99,7 +104,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       .select('*')
       .eq('id', user.id)
       .single()
-    
+
     type ProfileData = {
       id: string;
       email: string | null;
@@ -113,13 +118,15 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       return null
     }
 
+    const typedProfile = profile as ProfileData
+
     return {
       id: user.id,
-      email: profile.email,
-      username: profile.username,
-      full_name: profile.full_name,
-      avatar_url: profile.avatar_url,
-      role: profile.role
+      email: typedProfile?.email || undefined,
+      username: typedProfile?.username || '',
+      full_name: typedProfile?.full_name || undefined,
+      avatar_url: typedProfile?.avatar_url || undefined,
+      role: typedProfile?.role || 'user'
     }
   } catch (error) {
     console.error('Error en getCurrentUser:', error)
@@ -136,9 +143,12 @@ export async function updateProfile(updates: Partial<Pick<AuthUser, 'full_name' 
       throw new Error('Usuario no autenticado')
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('profiles')
-      .update(updates as any)
+      .update({
+        ...(updates.full_name !== undefined && { full_name: updates.full_name }),
+        ...(updates.avatar_url !== undefined && { avatar_url: updates.avatar_url })
+      })
       .eq('id', user.id)
       .select()
       .single()
@@ -192,19 +202,3 @@ export async function updatePassword(newPassword: string) {
   }
 }
 
-// Función para obtener autenticación en el servidor
-export async function getAuth(req: Request) {
-  try {
-    const supabaseServer = createClient()
-    const { data: { user }, error } = await supabaseServer.auth.getUser()
-    
-    if (error || !user) {
-      throw new Error('No autorizado')
-    }
-
-    return { user }
-  } catch (error) {
-    console.error('Error en getAuth:', error)
-    throw new Error('No autorizado')
-  }
-}
