@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       .from("quizzes")
       .select(`
         *,
-        profiles!quizzes_created_by_fkey (
+        profiles (
           id,
           username,
           full_name
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       })
       .select(`
         *,
-        profiles!quizzes_created_by_fkey (
+        profiles (
           id,
           username,
           full_name

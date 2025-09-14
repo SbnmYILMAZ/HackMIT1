@@ -91,7 +91,7 @@ async function signOutUser() {
     throw new Error(`Error al cerrar sesión: ${error.message}`);
   }
 }
-
+//hhsahas
 export function AuthProvider({
   children,
 }: {
@@ -104,29 +104,29 @@ export function AuthProvider({
 
   const refreshUser = async () => {
     if (isRefreshing) {
-      console.log('Already refreshing user, skipping...')
-      return
+      console.log("Already refreshing user, skipping...");
+      return;
     }
-    
+
     try {
-      setIsRefreshing(true)
-      console.log('Refreshing user...')
-      const currentUser = await getCurrentUser()
-      console.log('Current user:', currentUser)
-      setUser(currentUser)
+      setIsRefreshing(true);
+      console.log("Refreshing user...");
+      const currentUser = await getCurrentUser();
+      console.log("Current user:", currentUser);
+      setUser(currentUser);
     } catch (error) {
-      console.error('Error refreshing user:', error)
-      setUser(null)
+      console.error("Error refreshing user:", error);
+      setUser(null);
     } finally {
-      setIsRefreshing(false)
+      setIsRefreshing(false);
     }
   };
 
   const signOut = async () => {
     try {
-      await signOutUser()
-      setUser(null)
-      setSession(null)
+      await signOutUser();
+      setUser(null);
+      setSession(null);
     } catch (error) {
       console.error("Error signing out:", error);
       throw error;

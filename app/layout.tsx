@@ -6,7 +6,9 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { SkipNavigation } from "@/components/skip-navigation"
 import { AuthProvider } from "@/hooks/use-auth"
+import { AuthStatus } from "@/components/auth-status"
 import { Toaster } from "@/components/ui/toaster"
+import { LoadingScreen } from "@/components/ui/loading-screen"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -21,11 +23,23 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="es" className="scroll-smooth">
+      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <AuthProvider>
           <SkipNavigation />
-          <Suspense fallback={null}>{children}</Suspense>
+          <AuthStatus>
+            <Suspense 
+              fallback={
+                <LoadingScreen 
+                  title="Cargando QuizMaster" 
+                  description="Preparando tu experiencia de aprendizaje..." 
+                  variant="default"
+                />
+              }
+            >
+              {children}
+            </Suspense>
+          </AuthStatus>
           <Toaster />
           <Analytics />
         </AuthProvider>
