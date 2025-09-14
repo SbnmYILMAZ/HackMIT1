@@ -34,13 +34,13 @@ export default function LoginPage() {
     setModalState({
       isOpen: true,
       type: 'loading',
-      title: 'Iniciando sesión...',
-      message: 'Por favor espera un momento'
+      title: 'Signing in...',
+      message: 'Please wait a moment'
     })
 
     try {
       if (!username || !password) {
-        throw new Error("Por favor completa todos los campos")
+        throw new Error("Please fill in all fields")
       }
 
       const result = await signInWithUsername({ username, password })
@@ -50,8 +50,8 @@ export default function LoginPage() {
         setModalState({
           isOpen: true,
           type: 'success',
-          title: '¡Bienvenido de vuelta!',
-          message: 'Redirigiendo al dashboard...'
+          title: 'Welcome back!',
+          message: 'Redirecting to dashboard...'
         })
         
         // Redirigir después de un breve delay
@@ -66,8 +66,8 @@ export default function LoginPage() {
       setModalState({
         isOpen: true,
         type: 'error',
-        title: 'Error de inicio de sesión',
-        message: err instanceof Error ? err.message : "Error de inicio de sesión"
+        title: 'Sign in error',
+        message: err instanceof Error ? err.message : "Sign in error"
       })
     } finally {
       setIsLoading(false)

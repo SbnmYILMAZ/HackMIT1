@@ -42,25 +42,25 @@ export default function RegisterPage() {
     try {
       // Validation
       if (!formData.username || !formData.full_name || !formData.password || !formData.confirmPassword) {
-        throw new Error("Por favor completa todos los campos")
+        throw new Error("Please fill in all fields")
       }
 
       if (formData.password !== formData.confirmPassword) {
-        throw new Error("Las contraseñas no coinciden")
+        throw new Error("Passwords do not match")
       }
 
       if (formData.password.length < 6) {
-        throw new Error("La contraseña debe tener al menos 6 caracteres")
+        throw new Error("Password must be at least 6 characters")
       }
 
       if (!acceptTerms) {
-        throw new Error("Por favor acepta los términos y condiciones")
+        throw new Error("Please accept the terms and conditions")
       }
 
       // Verificar disponibilidad del username
       const isUsernameAvailable = await checkUsernameAvailability(formData.username)
       if (!isUsernameAvailable) {
-        throw new Error("Este nombre de usuario ya está en uso")
+        throw new Error("This username is already taken")
       }
 
       // Registrar usuario
@@ -72,8 +72,8 @@ export default function RegisterPage() {
       
       // Mostrar toast de éxito
       toast({
-        title: "¡Cuenta creada exitosamente!",
-        description: "Bienvenido a QuizMaster",
+        title: "Account created successfully!",
+        description: "Welcome to QuizMaster",
         variant: "default",
         className: "border-green-200 bg-green-50 text-green-800"
       })
@@ -83,7 +83,7 @@ export default function RegisterPage() {
         router.push("/dashboard")
       }, 1000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error de registro")
+      setError(err instanceof Error ? err.message : "Registration error")
     } finally {
       setIsLoading(false)
     }
