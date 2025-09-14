@@ -6,9 +6,9 @@ import random
 # Initialize pygame
 pygame.init()
 
-# Dynamic screen sizing for web
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
+# Fullscreen dimensions
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 EARTH_RADIUS = min(SCREEN_WIDTH, SCREEN_HEIGHT) // 4
 EARTH_CENTER = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 
@@ -21,14 +21,14 @@ LAND_BROWN = (139, 69, 19)
 CLOUD_WHITE = (255, 255, 255, 100)
 ATMOSPHERE_BLUE = (135, 206, 250, 50)
 
-# Create screen that fills browser tab
+# Create screen for web embedding
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Earth from Space - HackMIT Mission")
 clock = pygame.time.Clock()
 
-# Generate fewer stars for faster startup
+# Generate random stars
 stars = []
-for _ in range(150):  # Reduced from 300 to 150
+for _ in range(200):
     x = random.randint(0, SCREEN_WIDTH)
     y = random.randint(0, SCREEN_HEIGHT)
     brightness = random.randint(100, 255)
@@ -36,9 +36,8 @@ for _ in range(150):  # Reduced from 300 to 150
     stars.append((x, y, brightness, size))
 
 def draw_stars(surface):
-    """Draw twinkling stars in space"""
-    for star in stars:
-        x, y, brightness, size = star
+    """Draw twinkling stars"""
+    for x, y, brightness, size in stars:
         # Add slight twinkling effect
         twinkle = random.randint(-30, 30)
         current_brightness = max(50, min(255, brightness + twinkle))
@@ -48,6 +47,76 @@ def draw_stars(surface):
             pygame.draw.circle(surface, color, (x, y), 1)
         else:
             pygame.draw.circle(surface, color, (x, y), 2)
+
+def load_astronomical_background():
+    """Load or create a realistic astronomical background"""
+    global background_image
+    
+    # Create a deep space background with nebula-like colors and distant galaxies
+    background_image = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+    
+    # Create a gradient from deep space purple to black
+    for y in range(SCREEN_HEIGHT):
+        # Create subtle color variations across the background
+        color_variation = int(15 * math.sin(y * 0.01) + 15)
+        r = min(25, max(5, 15 + color_variation))
+        g = min(15, max(2, 8 + color_variation // 2))
+        b = min(35, max(10, 25 + color_variation))
+        
+        pygame.draw.line(background_image, (r, g, b), (0, y), (SCREEN_WIDTH, y))
+    
+    # Add distant galaxies and nebulae
+    for _ in range(8):
+        x = random.randint(100, SCREEN_WIDTH - 100)
+        y = random.randint(100, SCREEN_HEIGHT - 100)
+        
+        # Create galaxy spiral effect
+        galaxy_surface = pygame.Surface((80, 80), pygame.SRCALPHA)
+        center = (40, 40)
+        
+        # Galaxy core
+        pygame.draw.circle(galaxy_surface, (60, 40, 80, 120), center, 15)
+        pygame.draw.circle(galaxy_surface, (80, 60, 100, 80), center, 25)
+        
+        # Spiral arms
+        for angle in range(0, 360, 5):
+            rad = math.radians(angle)
+            spiral_x = center[0] + int(30 * math.cos(rad + angle * 0.1))
+            spiral_y = center[1] + int(20 * math.sin(rad + angle * 0.1))
+            if 0 <= spiral_x < 80 and 0 <= spiral_y < 80:
+                alpha = max(20, 60 - abs(angle % 90 - 45))
+                pygame.draw.circle(galaxy_surface, (40, 30, 60, alpha), (spiral_x, spiral_y), 2)
+        
+        background_image.blit(galaxy_surface, (x - 40, y - 40), special_flags=pygame.BLEND_ADD)
+    
+    # Add nebula clouds
+    for _ in range(12):
+        x = random.randint(0, SCREEN_WIDTH)
+        y = random.randint(0, SCREEN_HEIGHT)
+        
+        nebula_surface = pygame.Surface((150, 150), pygame.SRCALPHA)
+        
+        # Create nebula with multiple color layers
+        colors = [(60, 30, 80, 30), (40, 60, 100, 25), (80, 40, 60, 20)]
+        for i, color in enumerate(colors):
+            size = 75 - i * 15
+            pygame.draw.circle(nebula_surface, color, (75, 75), size)
+        
+        background_image.blit(nebula_surface, (x - 75, y - 75), special_flags=pygame.BLEND_ADD)
+
+def draw_astronomical_background(surface):
+    """Draw realistic astronomical background with stars"""
+    global background_image
+    
+    # Load background if not already loaded
+    if background_image is None:
+        load_astronomical_background()
+    
+    # Draw the deep space background
+    surface.blit(background_image, (0, 0))
+    
+    # Draw stars
+    draw_stars(surface)
 
 # Load Earth image
 earth_image = None
@@ -184,8 +253,8 @@ async def main():
         # cloud_rotation += 0.003  # Clouds move slightly faster
         
         # Add title text
-        font = pygame.font.Font(None, 36)
-        title_text = font.render("Earth from Space - HackMIT Mission", True, (255, 255, 255))
+        font = pygame.font.Font(None, 72)
+        title_text = font.render("LEVEL 1: THE EARTH", True, (79, 172, 254))
         screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 50))
         
         # Add controls text
