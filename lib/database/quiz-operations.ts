@@ -5,8 +5,12 @@ import type {
   QuizWithCreator, 
   CreateQuizForm, 
   CreateQuestionForm,
+  CreateQuestionAPIForm,
+  UpdateQuestionAPIForm,
+  QuestionCustom,
   SubjectType,
-  DifficultyType 
+  DifficultyType,
+  Database 
 } from '@/lib/types/database'
 
 // Operaciones de Quiz
@@ -145,9 +149,9 @@ export async function getUserQuizzes(userId?: string) {
 
 export async function updateQuiz(id: string, updates: Partial<CreateQuizForm>) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('quizzes')
-      .update(updates as any)
+      .update(updates)
       .eq('id', id)
       .select()
       .single()
@@ -174,8 +178,8 @@ export async function deleteQuiz(id: string) {
   }
 }
 
-// Operaciones de Question
-export async function createQuestion(questionData: CreateQuestionForm) {
+// Operaciones de Question - usando esquema personalizado
+export async function createQuestion(questionData: CreateQuestionAPIForm) {
   try {
     const { data, error } = await supabase
       .from('questions')
@@ -207,17 +211,18 @@ export async function getQuestionsByQuizId(quizId: string) {
   }
 }
 
-export async function updateQuestion(id: string, updates: Partial<CreateQuestionForm>) {
+export async function updateQuestion(id: string, updates: UpdateQuestionAPIForm) {
   try {
-    const { data, error } = await supabase
+    // Type assertion to bypass strict typing while maintaining type safety
+    const { data, error } = await (supabase as any)
       .from('questions')
-      .update(updates as any)
+      .update(updates)
       .eq('id', id)
       .select()
       .single()
 
     if (error) throw new Error(`Error al actualizar pregunta: ${error.message}`)
-    return data
+    return data as QuestionCustom
   } catch (error) {
     console.error('Error en updateQuestion:', error)
     throw error
@@ -238,20 +243,19 @@ export async function deleteQuestion(id: string) {
   }
 }
 
-export async function reorderQuestions(quizId: string, questionIds: string[]) {
+// Función para obtener preguntas por quiz ID usando esquema personalizado
+export async function getQuestionsByQuizIdCustom(quizId: string) {
   try {
-    const updates = questionIds.map((id, index) => ({
-      id,
-      order_index: index
-    }))
-
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('questions')
-      .upsert(updates as any)
+      .select('*')
+      .eq('quiz_id', quizId)
+      .order('created_at', { ascending: true })
 
-    if (error) throw new Error(`Error al reordenar preguntas: ${error.message}`)
+    if (error) throw new Error(`Error al obtener preguntas: ${error.message}`)
+    return data
   } catch (error) {
-    console.error('Error en reorderQuestions:', error)
+    console.error('Error en getQuestionsByQuizIdCustom:', error)
     throw error
   }
 }

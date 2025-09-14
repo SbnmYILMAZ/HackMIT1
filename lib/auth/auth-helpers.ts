@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import type { SignUpWithUsernameData, SignInWithUsernameData, AuthUser } from '@/lib/types/database'
 
 // Función para registrarse con username
@@ -188,5 +189,22 @@ export async function updatePassword(newPassword: string) {
   } catch (error) {
     console.error('Error en updatePassword:', error)
     throw error
+  }
+}
+
+// Función para obtener autenticación en el servidor
+export async function getAuth(req: Request) {
+  try {
+    const supabaseServer = createClient()
+    const { data: { user }, error } = await supabaseServer.auth.getUser()
+    
+    if (error || !user) {
+      throw new Error('No autorizado')
+    }
+
+    return { user }
+  } catch (error) {
+    console.error('Error en getAuth:', error)
+    throw new Error('No autorizado')
   }
 }

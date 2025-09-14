@@ -9,6 +9,7 @@ export type Json =
 
 // Enums de la base de datos
 export type QuestionType = 'single_choice' | 'multiple_choice' | 'true_false' | 'numeric' | 'short_answer'
+export type QuestionTypeAPI = 'mcq' | 'numeric' | 'open'
 export type SubjectType = 'math' | 'physics' | 'general'
 export type DifficultyType = 'easy' | 'medium' | 'hard'
 export type AttemptStatus = 'in_progress' | 'completed' | 'abandoned'
@@ -45,6 +46,21 @@ export interface Question {
   options?: Json
   answer?: Json
   order_index: number
+  created_at: string
+  updated_at: string
+}
+
+// Custom Questions table for our API
+export interface QuestionCustom {
+  id: string
+  quiz_id: string
+  stem: string
+  qtype: QuestionTypeAPI
+  choices?: { id: string; text: string }[] | null
+  correct_answer?: string | null
+  solution_explained?: string | null
+  tags: string[]
+  created_by: string
   created_at: string
   updated_at: string
 }
@@ -143,9 +159,9 @@ export interface Database {
         Update: Partial<Omit<Quiz, 'id' | 'created_at' | 'updated_at'>>
       }
       questions: {
-        Row: Question
-        Insert: Omit<Question, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<Question, 'id' | 'created_at' | 'updated_at'>>
+        Row: QuestionCustom
+        Insert: Omit<QuestionCustom, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<QuestionCustom, 'id' | 'created_at' | 'updated_at'>>
       }
       attempts: {
         Row: Attempt
@@ -229,6 +245,26 @@ export interface CreateQuestionForm {
   options?: Json
   answer?: Json
   order_index?: number
+}
+
+// Form interfaces for API endpoints
+export interface CreateQuestionAPIForm {
+  quiz_id: string
+  stem: string
+  qtype: QuestionTypeAPI
+  choices?: { id: string; text: string }[]
+  correct_answer?: string
+  solution_explained?: string
+  tags?: string[]
+}
+
+export interface UpdateQuestionAPIForm {
+  stem?: string
+  qtype?: QuestionTypeAPI
+  choices?: { id: string; text: string }[]
+  correct_answer?: string
+  solution_explained?: string
+  tags?: string[]
 }
 
 export interface TakeQuizResponse {
