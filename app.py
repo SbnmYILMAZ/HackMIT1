@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory, jsonify
 from models import db, User
 from forms import RegistrationForm, LoginForm, ForgotPasswordForm, SecurityQuestionForm
 from datetime import datetime
@@ -140,11 +140,45 @@ def game():
     # Serve the WebGL Earth game directly
     return render_template('game.html')
 
+@app.route('/save_score', methods=['POST'])
+def save_score():
+    # Check if user is logged in
+    if 'user_id' not in session:
+        return {'success': False, 'error': 'Not logged in'}, 401
+    
+    try:
+        data = request.get_json()
+        score = data.get('score', 0)
+        level = data.get('level', 1)
+        
+        # Get current user
+        user = User.query.get(session['user_id'])
+        if not user:
+            return {'success': False, 'error': 'User not found'}, 404
+        
+        # Update user's score if it's higher than current
+        if score > user.score:
+            user.score = score
+            user.level = max(user.level, level)
+            db.session.commit()
+            
+            return {'success': True, 'message': 'Score saved successfully', 'new_high_score': True}
+        else:
+            return {'success': True, 'message': 'Score recorded', 'new_high_score': False}
+            
+    except Exception as e:
+        db.session.rollback()
+        return {'success': False, 'error': str(e)}, 500
+
 @app.route('/logout')
 def logout():
     session.clear()
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('index'))
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(basedir, filename)
 
 
 
