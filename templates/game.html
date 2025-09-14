@@ -152,92 +152,6 @@
             z-index: 5;
         }
 
-        .mission-panel {
-            position: absolute;
-            top: 80px;
-            left: 20px;
-            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(147, 51, 234, 0.2));
-            border: 2px solid rgba(79, 172, 254, 0.6);
-            border-radius: 15px;
-            padding: 20px;
-            color: white;
-            font-family: 'Orbitron', monospace;
-            pointer-events: auto;
-            min-width: 280px;
-            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
-            backdrop-filter: blur(10px);
-            z-index: 10;
-        }
-
-        .earth-panel {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
-            border: 2px solid rgba(34, 197, 94, 0.6);
-            border-radius: 15px;
-            padding: 20px;
-            color: white;
-            font-family: 'Orbitron', monospace;
-            pointer-events: auto;
-            min-width: 250px;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
-            backdrop-filter: blur(10px);
-            z-index: 10;
-        }
-
-        .control-buttons {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            pointer-events: auto;
-        }
-
-        .game-btn {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            color: #0f172a;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(79, 172, 254, 0.3);
-        }
-
-        .game-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-        }
-
-        .scan-btn {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-        }
-
-        .photo-btn {
-            background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
-        }
-
-        .ready-btn {
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            font-size: 16px;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            border: 2px solid #ffaa00;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-        }
-
-        .ready-btn:hover {
-            background: linear-gradient(135deg, #ffed4e, #ff9500);
-            box-shadow: 0 5px 25px rgba(255, 215, 0, 0.6);
-            transform: translateY(-3px) scale(1.05);
-        }
 
         #notifications {
             position: absolute;
@@ -255,6 +169,179 @@
             pointer-events: none;
         }
 
+        #earthTooltip {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.95), rgba(147, 51, 234, 0.95));
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            border: 2px solid rgba(79, 172, 254, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            padding-top: 35px;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: auto;
+            z-index: 100;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+        
+        .quiz-question {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #4facfe;
+        }
+        
+        .quiz-answers {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .quiz-answers li {
+            padding: 8px 0;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .quiz-answers input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            accent-color: #4facfe;
+            cursor: pointer;
+        }
+        
+        .quiz-answers label {
+            cursor: pointer;
+            flex: 1;
+            color: #ffffff;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.8), rgba(147, 51, 234, 0.8));
+            color: white;
+            border: 2px solid rgba(79, 172, 254, 0.6);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .game-stats {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.15), rgba(147, 51, 234, 0.15));
+            border: 2px solid rgba(79, 172, 254, 0.4);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.3);
+            z-index: 10;
+            min-width: 200px;
+        }
+        
+        .stat-item {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .potential-score {
+            font-size: 10px;
+            color: #fbbf24;
+            margin-left: 5px;
+        }
+        
+        .stat-label {
+            color: #4facfe;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .difficulty-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .difficulty-easy {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
         @keyframes pulse {
             0% { box-shadow: 0 0 10px rgba(79, 172, 254, 0.5); }
             50% { box-shadow: 0 0 30px rgba(79, 172, 254, 0.8); }
@@ -267,37 +354,61 @@
     <a href="/logout" class="logout-btn">Logout</a>
     <div class="controls">Press ESC to return to main page | Mouse to rotate view | Click to interact</div>
     
-    <!-- 2D Game UI Overlay -->
+    <!-- Game Statistics -->
+    <div class="game-stats">
+        <div class="stat-item">
+            <span class="stat-label">Score:</span>
+            <span class="stat-value">
+                <span id="scoreValue">0</span>
+                <span class="potential-score" id="potentialScore">(+100)</span>
+            </span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Difficulty:</span>
+            <span class="stat-value">
+                <span class="difficulty-badge difficulty-easy" id="difficultyBadge">Easy</span>
+            </span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Streak:</span>
+            <span class="stat-value" id="progressValue">0/3</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Questions:</span>
+            <span class="stat-value" id="questionCount">1</span>
+        </div>
+    </div>
+    
+    <!-- Simple UI Overlay -->
     <div id="gameUI">
-        <!-- Mission Status Panel -->
-        <div class="mission-panel">
-            <h3 style="margin: 0 0 10px 0; color: #4facfe;">🛰️ MISSION STATUS</h3>
-            <div id="missionObjective" style="margin-bottom: 10px;">Objective: Observe Earth from orbit</div>
-            <div id="altitude" style="margin-bottom: 5px;">Altitude: 408 km</div>
-            <div id="velocity" style="margin-bottom: 5px;">Velocity: 7.66 km/s</div>
-            <div id="orbitalPeriod" style="margin-bottom: 5px;">Orbital Period: 92.9 min</div>
-            <div id="missionTime" style="color: #4facfe;">Mission Time: 00:00:00</div>
-        </div>
-        
-        <!-- Earth Information Panel -->
-        <div class="earth-panel">
-            <h3 style="margin: 0 0 10px 0; color: #00ff88;">🌍 EARTH DATA</h3>
-            <div id="currentRegion" style="margin-bottom: 5px;">Region: Pacific Ocean</div>
-            <div id="localTime" style="margin-bottom: 5px;">Local Time: Day</div>
-            <div id="weather" style="margin-bottom: 5px;">Weather: Clear</div>
-            <div id="temperature" style="color: #00ff88;">Temp: 22°C</div>
-        </div>
-        
-        <!-- Interactive Buttons -->
-        <div class="control-buttons">
-            <button id="zoomBtn" class="game-btn">🔍 Zoom</button>
-            <button id="scanBtn" class="game-btn scan-btn">📡 Scan</button>
-            <button id="photoBtn" class="game-btn photo-btn">📸 Photo</button>
-            <button id="readyBtn" class="game-btn ready-btn">🚀 Mission Ready</button>
-        </div>
-        
         <!-- Notification Area -->
         <div id="notifications"></div>
+        <!-- Earth Hover Tooltip -->
+        <div id="earthTooltip">
+            <button class="close-btn" onclick="closeTooltip()">×</button>
+            <div class="quiz-question" id="questionText">🌍 What is Earth's position from the Sun?</div>
+            <form id="quizForm">
+                <ul class="quiz-answers" id="answersList">
+                    <li>
+                        <input type="checkbox" id="answer-a" name="answer" value="a">
+                        <label for="answer-a">A) First planet</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="answer-b" name="answer" value="b">
+                        <label for="answer-b">B) Second planet</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="answer-c" name="answer" value="c">
+                        <label for="answer-c">C) Third planet</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="answer-d" name="answer" value="d">
+                        <label for="answer-d">D) Fourth planet</label>
+                    </li>
+                </ul>
+                <button type="button" class="submit-btn" onclick="submitAnswer()" id="submitBtn">Submit Answer</button>
+            </form>
+        </div>
     </div>
     
     <canvas id="gameCanvas" width="1920" height="1080"></canvas>
@@ -305,13 +416,152 @@
     <script>
         // Game state
         let gameState = {
-            missionStartTime: Date.now(),
-            zoomLevel: 1,
-            isScanning: false,
-            photosTaken: 0,
-            currentRegion: 'Pacific Ocean',
             earthRotation: 0,
-            cloudRotation: 0
+            score: 0,
+            difficulty: 'easy', // easy, medium, hard
+            correctAnswersInLevel: 0,
+            totalQuestions: 0,
+            currentQuestionIndex: 0,
+            usedQuestions: { easy: [], medium: [], hard: [] }, // Track used questions
+            currentQuestionPotentialScore: 0, // Full points available for current question
+            wrongAnswerCount: 0, // Track wrong answers for current question
+            currentQuestion: null // Store the current question being displayed
+        };
+        
+        // Question bank with engaging astronomy and Earth science questions
+        const questionBank = {
+            easy: [
+                {
+                    question: "🌍 If you could drill straight through Earth's center, which layer would be the hottest obstacle?",
+                    answers: ["The mantle", "The outer core", "The inner core", "The crust"],
+                    correct: 2,
+                    explanation: "The inner core reaches temperatures of 5,000-6,000°C, hotter than the Sun's surface!"
+                },
+                {
+                    question: "🌙 Why does the Moon appear the same size as the Sun during a solar eclipse?",
+                    answers: ["They are the same size", "It's an incredible cosmic coincidence", "The atmosphere magnifies the Moon", "Earth's gravity bends light"],
+                    correct: 1,
+                    explanation: "The Sun is 400x larger than the Moon, but also 400x farther away - pure cosmic luck!"
+                },
+                {
+                    question: "🌊 What would happen to Earth's oceans if the Moon suddenly disappeared?",
+                    answers: ["Nothing significant", "Tides would become much smaller", "The oceans would freeze", "Water would float into space"],
+                    correct: 1,
+                    explanation: "Without the Moon's gravitational pull, tides would be only about 1/3 their current size."
+                },
+                {
+                    question: "⚡ Earth's magnetic field occasionally flips. When did this last happen?",
+                    answers: ["780,000 years ago", "12,000 years ago", "2,000 years ago", "It's never happened"],
+                    correct: 0,
+                    explanation: "The Brunhes-Matuyama reversal was the last major magnetic pole flip, and we're overdue for another!"
+                },
+                {
+                    question: "🌍 If Earth stopped rotating but kept orbiting the Sun, how long would a day last?",
+                    answers: ["24 hours", "365 days", "12 hours", "There would be no day/night cycle"],
+                    correct: 1,
+                    explanation: "One side would face the Sun for half the year, then the other side - each 'day' would be a full year!"
+                },
+                {
+                    question: "🔥 What creates the beautiful aurora (Northern/Southern Lights) in Earth's atmosphere?",
+                    answers: ["Sunlight reflecting off ice crystals", "Solar wind particles hitting our magnetic field", "Lightning in the upper atmosphere", "Volcanic ash glowing in space"],
+                    correct: 1,
+                    explanation: "Charged particles from the Sun collide with our magnetosphere, creating these stunning light displays!"
+                },
+                {
+                    question: "🌍 Why is Earth the only planet in our solar system with liquid water oceans?",
+                    answers: ["We have the most water", "We're in the 'Goldilocks Zone'", "Our atmosphere is thickest", "We have the strongest gravity"],
+                    correct: 1,
+                    explanation: "Earth orbits at just the right distance - not too hot, not too cold - for liquid water to exist!"
+                }
+            ],
+            medium: [
+                {
+                    question: "🌍 Earth's axis wobbles like a spinning top. This 26,000-year cycle affects what?",
+                    answers: ["The length of seasons", "Which star is our 'North Star'", "The strength of gravity", "Ocean currents"],
+                    correct: 1,
+                    explanation: "Axial precession means Polaris won't always be our North Star - in 12,000 years, Vega will be!"
+                },
+                {
+                    question: "🌊 The deepest point in Earth's oceans is the Challenger Deep. How deep is it?",
+                    answers: ["8,848 meters", "11,034 meters", "6,960 meters", "15,200 meters"],
+                    correct: 1,
+                    explanation: "The Challenger Deep in the Mariana Trench is 11,034m deep - deeper than Mount Everest is tall!"
+                },
+                {
+                    question: "🔬 What percentage of Earth's habitable space is in the deep ocean?",
+                    answers: ["20%", "50%", "80%", "95%"],
+                    correct: 3,
+                    explanation: "About 95% of Earth's habitable space is in the deep ocean - the vast majority of our biosphere!"
+                },
+                {
+                    question: "⭐ From space, what human-made structure is most easily visible on Earth?",
+                    answers: ["The Great Wall of China", "City lights at night", "Large airports", "The pyramids"],
+                    correct: 1,
+                    explanation: "Contrary to myth, the Great Wall isn't visible from space, but city lights create a brilliant glow!"
+                },
+                {
+                    question: "🌍 Earth's core generates our magnetic field. What metal makes up most of this core?",
+                    answers: ["Nickel", "Iron", "Copper", "Gold"],
+                    correct: 1,
+                    explanation: "Earth's core is mostly molten iron, creating electrical currents that generate our protective magnetic field!"
+                },
+                {
+                    question: "🌋 The 'Ring of Fire' around the Pacific contains what percentage of Earth's active volcanoes?",
+                    answers: ["50%", "60%", "75%", "90%"],
+                    correct: 2,
+                    explanation: "This horseshoe-shaped zone has 75% of the world's volcanoes due to tectonic plate boundaries!"
+                },
+                {
+                    question: "🌙 Earth's Moon is gradually moving away from us. How much farther each year?",
+                    answers: ["3.8 centimeters", "1.2 meters", "5 millimeters", "It's getting closer"],
+                    correct: 0,
+                    explanation: "The Moon drifts away at 3.8cm per year due to tidal forces - days are getting longer too!"
+                }
+            ],
+            hard: [
+                {
+                    question: "🌍 Earth's rotation is slowing down due to tidal friction. How much longer is each day getting per century?",
+                    answers: ["1.7 milliseconds", "5.2 milliseconds", "12.8 milliseconds", "25.6 milliseconds"],
+                    correct: 0,
+                    explanation: "Each day gets about 1.7 milliseconds longer per century due to tidal friction from the Moon!"
+                },
+                {
+                    question: "⚡ Earth's magnetosphere deflects solar wind. Without it, what would happen to our atmosphere?",
+                    answers: ["Nothing would change", "It would slowly be stripped away like Mars", "It would become thicker", "It would turn into plasma"],
+                    correct: 1,
+                    explanation: "Mars lost most of its atmosphere this way - our magnetic field is crucial for keeping our air!"
+                },
+                {
+                    question: "🌊 The Coriolis effect influences ocean currents. What causes this phenomenon?",
+                    answers: ["Earth's magnetic field", "Earth's rotation", "The Moon's gravity", "Solar radiation pressure"],
+                    correct: 1,
+                    explanation: "Earth's rotation creates apparent forces that deflect moving objects, driving global circulation patterns!"
+                },
+                {
+                    question: "🔥 Earth's inner core is solid despite being hotter than the outer core. Why?",
+                    answers: ["It's made of different materials", "Extreme pressure keeps it solid", "It's actually cooler", "Magnetic fields compress it"],
+                    correct: 1,
+                    explanation: "Immense pressure at Earth's center forces iron into a solid state despite temperatures of 6,000°C!"
+                },
+                {
+                    question: "🌍 Earth wobbles on its axis due to mass redistribution. What recent event affects this wobble?",
+                    answers: ["Melting polar ice", "Volcanic eruptions", "Ocean currents", "All of the above"],
+                    correct: 3,
+                    explanation: "Climate change, earthquakes, and even large dams can shift Earth's mass and affect its rotation!"
+                },
+                {
+                    question: "⭐ Earth occasionally captures small asteroids as temporary moons. How long do they typically stay?",
+                    answers: ["A few days", "Several months", "A few years", "They never leave"],
+                    correct: 1,
+                    explanation: "These 'minimoons' orbit Earth for months before escaping - we've detected several!"
+                },
+                {
+                    question: "🌊 What is the approximate concentration of gold in Earth's oceans?",
+                    answers: ["0.004 parts per billion", "0.4 parts per billion", "4 parts per billion", "40 parts per billion"],
+                    correct: 2,
+                    explanation: "There's about 4 parts per billion of gold in seawater - totaling roughly 20 million tons, but too dilute to extract!"
+                }
+            ]
         };
 
         // Canvas setup
@@ -323,6 +573,19 @@
         const SCREEN_HEIGHT = 1080;
         const EARTH_RADIUS = 200;
         const EARTH_CENTER = { x: SCREEN_WIDTH / 2, y: SCREEN_HEIGHT / 2 };
+        
+        // Adjust canvas size to actual viewport
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Update Earth center based on actual canvas size
+            EARTH_CENTER.x = canvas.width / 2;
+            EARTH_CENTER.y = canvas.height / 2;
+        }
+        
+        // Initial resize
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
         // Colors
         const BLACK = '#000000';
@@ -358,189 +621,49 @@
             });
         }
 
-        function drawEarthContinents(rotationAngle) {
-            // Draw ocean base
-            ctx.fillStyle = OCEAN_BLUE;
-            ctx.beginPath();
-            ctx.arc(EARTH_CENTER.x, EARTH_CENTER.y, EARTH_RADIUS, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Continent data (converted from Pygame)
-            const continents = [
-                // North America
-                [[0.3, 0.2], [0.5, 0.15], [0.6, 0.3], [0.4, 0.4], [0.2, 0.35]],
-                // Europe/Africa
-                [[0.5, 0.2], [0.7, 0.25], [0.65, 0.6], [0.55, 0.7], [0.45, 0.5]],
-                // Asia
-                [[0.7, 0.15], [0.9, 0.2], [0.95, 0.4], [0.8, 0.45], [0.75, 0.3]],
-                // South America
-                [[0.3, 0.5], [0.4, 0.45], [0.45, 0.8], [0.35, 0.85], [0.25, 0.7]]
-            ];
-
-            ctx.fillStyle = LAND_GREEN;
-            continents.forEach(continent => {
-                const points = [];
-                continent.forEach(([relX, relY]) => {
-                    // Convert to centered coordinates
-                    const x = (relX - 0.5) * EARTH_RADIUS * 1.8;
-                    const y = (relY - 0.5) * EARTH_RADIUS * 1.8;
-                    
-                    // Apply rotation
-                    const rotatedX = x * Math.cos(rotationAngle) - y * Math.sin(rotationAngle);
-                    const rotatedY = x * Math.sin(rotationAngle) + y * Math.cos(rotationAngle);
-                    
-                    // Convert back to screen coordinates
-                    const finalX = rotatedX + EARTH_CENTER.x;
-                    const finalY = rotatedY + EARTH_CENTER.y;
-                    
-                    // Only add points that are visible (within the circle)
-                    if (rotatedX * rotatedX + rotatedY * rotatedY <= EARTH_RADIUS * EARTH_RADIUS) {
-                        points.push([finalX, finalY]);
-                    }
-                });
-
-                if (points.length >= 3) {
-                    ctx.beginPath();
-                    ctx.moveTo(points[0][0], points[0][1]);
-                    for (let i = 1; i < points.length; i++) {
-                        ctx.lineTo(points[i][0], points[i][1]);
-                    }
-                    ctx.closePath();
-                    ctx.fill();
-                }
-            });
-
-            // Add some brown landmasses
-            const brownAreas = [
-                [[0.6, 0.3], [0.75, 0.35], [0.7, 0.5], [0.55, 0.45]],
-                [[0.2, 0.6], [0.35, 0.65], [0.3, 0.75], [0.15, 0.7]]
-            ];
-
-            ctx.fillStyle = LAND_BROWN;
-            brownAreas.forEach(area => {
-                const points = [];
-                area.forEach(([relX, relY]) => {
-                    const x = (relX - 0.5) * EARTH_RADIUS * 1.8;
-                    const y = (relY - 0.5) * EARTH_RADIUS * 1.8;
-                    
-                    const rotatedX = x * Math.cos(rotationAngle) - y * Math.sin(rotationAngle);
-                    const rotatedY = x * Math.sin(rotationAngle) + y * Math.cos(rotationAngle);
-                    
-                    const finalX = rotatedX + EARTH_CENTER.x;
-                    const finalY = rotatedY + EARTH_CENTER.y;
-                    
-                    if (rotatedX * rotatedX + rotatedY * rotatedY <= EARTH_RADIUS * EARTH_RADIUS) {
-                        points.push([finalX, finalY]);
-                    }
-                });
-
-                if (points.length >= 3) {
-                    ctx.beginPath();
-                    ctx.moveTo(points[0][0], points[0][1]);
-                    for (let i = 1; i < points.length; i++) {
-                        ctx.lineTo(points[i][0], points[i][1]);
-                    }
-                    ctx.closePath();
-                    ctx.fill();
-                }
-            });
-        }
-
-        function drawAtmosphere() {
-            // Create atmospheric glow
-            for (let i = 0; i < 3; i++) {
-                const glowRadius = EARTH_RADIUS + (i * 15);
-                const alpha = Math.max(0.05, 0.2 - (i * 0.05));
-                
-                const gradient = ctx.createRadialGradient(
-                    EARTH_CENTER.x, EARTH_CENTER.y, EARTH_RADIUS,
-                    EARTH_CENTER.x, EARTH_CENTER.y, glowRadius
-                );
-                gradient.addColorStop(0, `rgba(135, 206, 250, 0)`);
-                gradient.addColorStop(1, `rgba(135, 206, 250, ${alpha})`);
-                
-                ctx.fillStyle = gradient;
+        // Load and draw Earth texture image
+        const earthImage = new Image();
+        earthImage.src = '/static/earth_texture.jpg';
+        
+        // Add error handling and loading check
+        earthImage.onerror = function() {
+            console.log('Failed to load earth_texture.jpg, trying Earth.png');
+            earthImage.src = '/static/Earth.png';
+        };
+        
+        earthImage.onload = function() {
+            console.log('Earth image loaded successfully');
+        };
+        
+        function drawEarthTexture() {
+            if (earthImage.complete) {
+                // Create circular clipping path
+                ctx.save();
                 ctx.beginPath();
-                ctx.arc(EARTH_CENTER.x, EARTH_CENTER.y, glowRadius, 0, Math.PI * 2);
+                ctx.arc(EARTH_CENTER.x, EARTH_CENTER.y, EARTH_RADIUS, 0, Math.PI * 2);
+                ctx.clip();
+                
+                // Draw the Earth texture image
+                ctx.drawImage(
+                    earthImage,
+                    EARTH_CENTER.x - EARTH_RADIUS,
+                    EARTH_CENTER.y - EARTH_RADIUS,
+                    EARTH_RADIUS * 2,
+                    EARTH_RADIUS * 2
+                );
+                
+                ctx.restore();
+            } else {
+                // Fallback to simple blue circle if image not loaded
+                ctx.fillStyle = OCEAN_BLUE;
+                ctx.beginPath();
+                ctx.arc(EARTH_CENTER.x, EARTH_CENTER.y, EARTH_RADIUS, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        function drawClouds(cloudRotation) {
-            const cloudPatches = [
-                [0.2, 0.3, 0.15], [0.7, 0.2, 0.12], [0.4, 0.6, 0.18],
-                [0.8, 0.5, 0.1], [0.1, 0.7, 0.13], [0.6, 0.8, 0.11]
-            ];
 
-            ctx.fillStyle = CLOUD_WHITE;
-            cloudPatches.forEach(([relX, relY, cloudSize]) => {
-                const x = (relX - 0.5) * EARTH_RADIUS * 1.6;
-                const y = (relY - 0.5) * EARTH_RADIUS * 1.6;
-                
-                const rotatedX = x * Math.cos(cloudRotation) - y * Math.sin(cloudRotation);
-                const rotatedY = x * Math.sin(cloudRotation) + y * Math.cos(cloudRotation);
-                
-                const finalX = rotatedX + EARTH_CENTER.x;
-                const finalY = rotatedY + EARTH_CENTER.y;
-                
-                if (rotatedX * rotatedX + rotatedY * rotatedY <= EARTH_RADIUS * EARTH_RADIUS) {
-                    const cloudRadius = cloudSize * EARTH_RADIUS;
-                    ctx.beginPath();
-                    ctx.arc(finalX, finalY, cloudRadius, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            });
-        }
 
-        function drawClouds(cloudRotation) {
-            const cloudPatches = [
-                [0.2, 0.3, 0.15], [0.7, 0.2, 0.12], [0.4, 0.6, 0.18],
-                [0.8, 0.5, 0.1], [0.1, 0.7, 0.13], [0.6, 0.8, 0.11]
-            ];
-
-            ctx.fillStyle = CLOUD_WHITE;
-            cloudPatches.forEach(([relX, relY, cloudSize]) => {
-                const x = (relX - 0.5) * EARTH_RADIUS * 1.6;
-                const y = (relY - 0.5) * EARTH_RADIUS * 1.6;
-                
-                const rotatedX = x * Math.cos(cloudRotation) - y * Math.sin(cloudRotation);
-                const rotatedY = x * Math.sin(cloudRotation) + y * Math.cos(cloudRotation);
-                
-                const finalX = rotatedX + EARTH_CENTER.x;
-                const finalY = rotatedY + EARTH_CENTER.y;
-                
-                if (rotatedX * rotatedX + rotatedY * rotatedY <= EARTH_RADIUS * EARTH_RADIUS) {
-                    const cloudRadius = cloudSize * EARTH_RADIUS;
-                    ctx.beginPath();
-                    ctx.arc(finalX, finalY, cloudRadius, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            });
-        }
-
-        // 2D Game UI Functions
-        function updateMissionTime() {
-            const elapsed = Date.now() - gameState.missionStartTime;
-            const hours = Math.floor(elapsed / 3600000);
-            const minutes = Math.floor((elapsed % 3600000) / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            document.getElementById('missionTime').textContent = 
-                `Mission Time: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        function updateEarthData() {
-            const regions = ['Pacific Ocean', 'North America', 'Atlantic Ocean', 'Europe', 'Africa', 'Asia', 'Australia'];
-            const regionIndex = Math.floor((gameState.earthRotation * 2) % regions.length);
-            gameState.currentRegion = regions[regionIndex];
-            
-            const dayNightCycle = Math.sin(Date.now() * 0.0001) * 0.5 + 0.5;
-            const isDay = dayNightCycle > 0.5;
-            
-            document.getElementById('currentRegion').textContent = `Region: ${gameState.currentRegion}`;
-            document.getElementById('localTime').textContent = `Local Time: ${isDay ? 'Day' : 'Night'}`;
-            document.getElementById('weather').textContent = `Weather: ${Math.random() > 0.7 ? 'Cloudy' : 'Clear'}`;
-            document.getElementById('temperature').textContent = `Temp: ${Math.floor(15 + Math.random() * 20)}°C`;
-        }
 
         function showNotification(message, duration = 3000) {
             const notifications = document.getElementById('notifications');
@@ -551,78 +674,277 @@
             }, duration);
         }
 
-        // Interactive functions
-        function handleZoom() {
-            gameState.zoomLevel = gameState.zoomLevel === 1 ? 2 : 1;
-            showNotification(`${gameState.zoomLevel === 1 ? 'Zoomed out' : 'Zoomed in'} - Altitude: ${gameState.zoomLevel === 1 ? '408' : '204'} km`);
-        }
 
-        function handleScan() {
-            if (gameState.isScanning) return;
-            
-            gameState.isScanning = true;
-            showNotification('🔍 Scanning Earth surface...', 2000);
-            
-            setTimeout(() => {
-                gameState.isScanning = false;
-                showNotification(`📊 Scan complete! Detected: ${Math.floor(Math.random() * 50 + 10)} surface features`);
-            }, 2000);
-        }
 
-        function handlePhoto() {
-            gameState.photosTaken++;
-            showNotification(`📸 Photo captured! Total photos: ${gameState.photosTaken}`);
-            
-            // Camera flash effect
-            const flash = document.createElement('div');
-            flash.style.position = 'fixed';
-            flash.style.top = '0';
-            flash.style.left = '0';
-            flash.style.width = '100%';
-            flash.style.height = '100%';
-            flash.style.backgroundColor = 'white';
-            flash.style.opacity = '0.8';
-            flash.style.pointerEvents = 'none';
-            flash.style.zIndex = '1000';
-            document.body.appendChild(flash);
-            
-            setTimeout(() => {
-                flash.style.opacity = '0';
-                setTimeout(() => document.body.removeChild(flash), 200);
-            }, 100);
-        }
-
-        // Ready button function
-        function handleReady() {
-            showNotification('🚀 Mission systems check complete! All systems operational.', 3000);
-            
-            // Add pulsing effect to mission panel
-            const missionPanel = document.querySelector('.mission-panel');
-            missionPanel.style.animation = 'pulse 2s ease-in-out';
-            setTimeout(() => {
-                missionPanel.style.animation = '';
-            }, 2000);
-        }
-
-        // Event listeners
-        document.getElementById('zoomBtn').addEventListener('click', handleZoom);
-        document.getElementById('scanBtn').addEventListener('click', handleScan);
-        document.getElementById('photoBtn').addEventListener('click', handlePhoto);
-        document.getElementById('readyBtn').addEventListener('click', handleReady);
-
-        canvas.addEventListener('click', (event) => {
+        // Mouse tracking for Earth hover
+        let mouseX = 0;
+        let mouseY = 0;
+        let isHoveringEarth = false;
+        
+        canvas.addEventListener('mousemove', (event) => {
             const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+            mouseX = event.clientX - rect.left;
+            mouseY = event.clientY - rect.top;
             
-            // Check if click is on Earth
-            const dx = x - EARTH_CENTER.x;
-            const dy = y - EARTH_CENTER.y;
+            // Check if mouse is over Earth
+            const dx = mouseX - EARTH_CENTER.x;
+            const dy = mouseY - EARTH_CENTER.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
+            const tooltip = document.getElementById('earthTooltip');
+            
+            console.log('Mouse position:', mouseX, mouseY, 'Earth center:', EARTH_CENTER.x, EARTH_CENTER.y, 'Distance:', distance, 'Radius:', EARTH_RADIUS);
+            
             if (distance <= EARTH_RADIUS) {
-                showNotification(`Clicked on ${gameState.currentRegion}`, 1500);
+                if (!isHoveringEarth) {
+                    isHoveringEarth = true;
+                    tooltip.style.opacity = '1';
+                    console.log('Showing tooltip');
+                    
+                    // Position tooltip near Earth but not covering it
+                    tooltip.style.left = (EARTH_CENTER.x + EARTH_RADIUS + 20) + 'px';
+                    tooltip.style.top = (EARTH_CENTER.y - 60) + 'px';
+                }
+            } else {
+                // Only auto-hide if tooltip was triggered by hover (not manually opened)
+                if (isHoveringEarth && tooltip.style.opacity === '1') {
+                    // Don't auto-hide anymore - let user close manually
+                }
             }
+        });
+        
+        // Function to close tooltip
+        function closeTooltip() {
+            const tooltip = document.getElementById('earthTooltip');
+            tooltip.style.opacity = '0';
+            isHoveringEarth = false;
+            // Reset form when closing
+            document.getElementById('quizForm').reset();
+        }
+        
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuestion();
+            updateGameStats();
+            attachCheckboxListeners();
+        });
+        
+        // Get current question based on difficulty and progress (no repeats)
+        function getCurrentQuestion() {
+            const questions = questionBank[gameState.difficulty];
+            const usedQuestions = gameState.usedQuestions[gameState.difficulty];
+            
+            // Find unused questions
+            const availableQuestions = questions.filter((_, index) => !usedQuestions.includes(index));
+            
+            // If all questions used, reset the used list (but this shouldn't happen with progression)
+            if (availableQuestions.length === 0) {
+                gameState.usedQuestions[gameState.difficulty] = [];
+                return questions[0];
+            }
+            
+            // Get random unused question
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            const selectedQuestion = availableQuestions[randomIndex];
+            
+            // Mark this question as used
+            const originalIndex = questions.indexOf(selectedQuestion);
+            gameState.usedQuestions[gameState.difficulty].push(originalIndex);
+            
+            return selectedQuestion;
+        }
+        
+        // Load and display current question
+        function loadQuestion() {
+            const question = getCurrentQuestion();
+            gameState.currentQuestion = question; // Store the current question
+            const questionText = document.getElementById('questionText');
+            const answersList = document.getElementById('answersList');
+            
+            questionText.textContent = question.question;
+            
+            // Reset question-specific state
+            gameState.wrongAnswerCount = 0;
+            
+            // Set potential score based on difficulty
+            switch (gameState.difficulty) {
+                case 'easy': gameState.currentQuestionPotentialScore = 100; break;
+                case 'medium': gameState.currentQuestionPotentialScore = 200; break;
+                case 'hard': gameState.currentQuestionPotentialScore = 300; break;
+            }
+            
+            // Clear existing answers
+            answersList.innerHTML = '';
+            
+            // Add new answers
+            question.answers.forEach((answer, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="checkbox" id="answer-${String.fromCharCode(97 + index)}" name="answer" value="${index}">
+                    <label for="answer-${String.fromCharCode(97 + index)}">${String.fromCharCode(65 + index)}) ${answer}</label>
+                `;
+                answersList.appendChild(li);
+            });
+            
+            // Re-attach checkbox event listeners
+            attachCheckboxListeners();
+            
+            // Update question counter and potential score display
+            document.getElementById('questionCount').textContent = gameState.totalQuestions + 1;
+            updatePotentialScoreDisplay();
+        }
+        
+        // Update game statistics display
+        function updateGameStats() {
+            document.getElementById('scoreValue').textContent = gameState.score;
+            document.getElementById('progressValue').textContent = `${gameState.correctAnswersInLevel}/3`;
+            
+            const difficultyBadge = document.getElementById('difficultyBadge');
+            difficultyBadge.textContent = gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1);
+            difficultyBadge.className = `difficulty-badge difficulty-${gameState.difficulty}`;
+            
+            updatePotentialScoreDisplay();
+        }
+        
+        // Update potential score display
+        function updatePotentialScoreDisplay() {
+            const potentialScoreElement = document.getElementById('potentialScore');
+            potentialScoreElement.textContent = `(+${gameState.currentQuestionPotentialScore})`;
+        }
+        
+        // Save score to database
+        async function saveScoreToDatabase() {
+            try {
+                const response = await fetch('/save_score', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        score: gameState.score,
+                        level: 1 // Earth level
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success && result.new_high_score) {
+                    showNotification('🎉 New High Score! Score saved to your profile!', 3000);
+                }
+            } catch (error) {
+                console.error('Failed to save score:', error);
+            }
+        }
+        
+        // Handle difficulty progression
+        function checkDifficultyProgression() {
+            if (gameState.correctAnswersInLevel >= 3) {
+                if (gameState.difficulty === 'easy') {
+                    gameState.difficulty = 'medium';
+                    gameState.correctAnswersInLevel = 0;
+                    gameState.currentQuestionIndex = 0;
+                    showNotification('🎉 Perfect streak! Difficulty increased to Medium! Questions now worth 200 points!', 4000);
+                } else if (gameState.difficulty === 'medium') {
+                    gameState.difficulty = 'hard';
+                    gameState.correctAnswersInLevel = 0;
+                    gameState.currentQuestionIndex = 0;
+                    showNotification('🔥 Excellent! Difficulty increased to Hard! Questions now worth 300 points!', 4000);
+                } else if (gameState.difficulty === 'hard') {
+                    // Completed all difficulties - ready for next level
+                    showNotification('🚀 Outstanding! You\'ve mastered Earth with perfect streaks! Ready for the Solar System level!', 6000);
+                    // Save final score
+                    saveScoreToDatabase();
+                    // TODO: Implement transition to Solar System level
+                    return;
+                }
+                updateGameStats();
+            }
+        }
+        
+        // Submit answer function
+        function submitAnswer() {
+            const checkboxes = document.querySelectorAll('input[name="answer"]');
+            const selectedAnswer = Array.from(checkboxes).find(cb => cb.checked);
+            
+            if (!selectedAnswer) {
+                showNotification('Please select an answer first!', 2000);
+                return;
+            }
+            
+            // Use the stored current question instead of calling getCurrentQuestion() again
+            const question = gameState.currentQuestion;
+            const selectedIndex = parseInt(selectedAnswer.value);
+            const isCorrect = selectedIndex === question.correct;
+            
+            gameState.totalQuestions++;
+            
+            if (isCorrect) {
+                // Award the current potential score
+                const points = gameState.currentQuestionPotentialScore;
+                
+                gameState.score += points;
+                gameState.correctAnswersInLevel++;
+                gameState.currentQuestionIndex++;
+                
+                showNotification(`🎉 Correct! +${points} points! Score: ${gameState.score} | Streak: ${gameState.correctAnswersInLevel}/3`, 3000);
+                
+                // Save score to database
+                saveScoreToDatabase();
+                
+                // Check for difficulty progression
+                setTimeout(() => {
+                    checkDifficultyProgression();
+                }, 1000);
+                
+                // Load next question after a delay
+                setTimeout(() => {
+                    loadQuestion();
+                    updateGameStats();
+                }, 2000);
+            } else {
+                // Reset progress when user makes a mistake
+                gameState.correctAnswersInLevel = 0;
+                
+                // Reduce potential score by 1/5 for wrong answer
+                gameState.wrongAnswerCount++;
+                gameState.currentQuestionPotentialScore = Math.max(1, Math.floor(gameState.currentQuestionPotentialScore * 0.8));
+                
+                showNotification(`❌ Wrong answer! Progress reset. The correct answer was: ${question.answers[question.correct]}. ${question.explanation || ''} You need 3 consecutive correct answers to advance.`, 8000);
+                
+                // Update potential score display
+                updatePotentialScoreDisplay();
+                
+                // Stay on same question - no progression on wrong answers
+            }
+            
+            // Reset form after submission
+            setTimeout(() => {
+                document.getElementById('quizForm').reset();
+            }, 500);
+            
+            updateGameStats();
+        }
+        
+        // Attach checkbox event listeners
+        function attachCheckboxListeners() {
+            const checkboxes = document.querySelectorAll('input[name="answer"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Uncheck all other checkboxes
+                        checkboxes.forEach(cb => {
+                            if (cb !== this) {
+                                cb.checked = false;
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        
+        // Remove auto-hide on mouse leave - tooltip now persists
+        canvas.addEventListener('mouseleave', () => {
+            // Tooltip no longer auto-hides
         });
 
         document.addEventListener('keydown', (event) => {
@@ -635,27 +957,13 @@
         function gameLoop() {
             // Clear screen
             ctx.fillStyle = BLACK;
-            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Draw stars
             drawStars();
             
-            // Draw atmospheric glow first (behind Earth)
-            drawAtmosphere();
-            
-            // Draw Earth with continents
-            drawEarthContinents(gameState.earthRotation);
-            
-            // Draw clouds
-            drawClouds(gameState.cloudRotation);
-            
-            // Update rotation angles
-            gameState.earthRotation += 0.005;
-            gameState.cloudRotation += 0.007;
-            
-            // Update UI
-            updateMissionTime();
-            updateEarthData();
+            // Draw static Earth texture
+            drawEarthTexture();
             
             // Continue animation
             requestAnimationFrame(gameLoop);
