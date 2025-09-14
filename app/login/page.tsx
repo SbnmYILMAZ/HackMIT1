@@ -7,49 +7,68 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Brain, Eye, EyeOff, User, Lock, CheckCircle } from "lucide-react"
+import { FeedbackModal } from "@/components/ui/feedback-modal"
+import { Brain, Eye, EyeOff, User, Lock } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signInWithUsername } from "@/lib/auth/auth-helpers"
-import { useToast } from "@/hooks/use-toast"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean
+    type: 'success' | 'error' | 'loading'
+    title: string
+    message: string
+  }>({ isOpen: false, type: 'success', title: '', message: '' })
   const router = useRouter()
-  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError("")
     setIsLoading(true)
+
+    // Mostrar modal de carga
+    setModalState({
+      isOpen: true,
+      type: 'loading',
+      title: 'Iniciando sesión...',
+      message: 'Por favor espera un momento'
+    })
 
     try {
       if (!username || !password) {
         throw new Error("Por favor completa todos los campos")
       }
 
-      await signInWithUsername({ username, password })
+      const result = await signInWithUsername({ username, password })
       
-      // Mostrar toast de éxito
-      toast({
-        title: "¡Bienvenido de vuelta!",
-        description: "Has iniciado sesión correctamente",
-        variant: "default",
-        className: "border-green-200 bg-green-50 text-green-800"
-      })
-      
-      // Redirigir después de un breve delay para mostrar el toast
-      setTimeout(() => {
-        router.push("/dashboard")
-      }, 1000)
+      if (result.user) {
+        // Mostrar modal de éxito
+        setModalState({
+          isOpen: true,
+          type: 'success',
+          title: '¡Bienvenido de vuelta!',
+          message: 'Redirigiendo al dashboard...'
+        })
+        
+        // Redirigir después de un breve delay
+        setTimeout(() => {
+          setModalState(prev => ({ ...prev, isOpen: false }))
+          window.location.href = "/dashboard"
+        }, 1200)
+      }
       
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error de inicio de sesión")
+      // Mostrar modal de error
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        title: 'Error de inicio de sesión',
+        message: err instanceof Error ? err.message : "Error de inicio de sesión"
+      })
     } finally {
       setIsLoading(false)
     }
@@ -77,11 +96,6 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
 
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
@@ -173,6 +187,16 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       </div>
+      
+      <FeedbackModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        type={modalState.type}
+        title={modalState.title}
+        message={modalState.message}
+        autoClose={false}
+        autoCloseDelay={1500}
+      />
     </div>
   )
 }
