@@ -1,3 +1,4 @@
+import asyncio
 import pygame
 import math
 import random
@@ -5,10 +6,10 @@ import random
 # Initialize pygame
 pygame.init()
 
-# Constants
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 1000
-EARTH_RADIUS = 200
+# Dynamic screen sizing for web
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 800
+EARTH_RADIUS = min(SCREEN_WIDTH, SCREEN_HEIGHT) // 4
 EARTH_CENTER = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 
 # Colors
@@ -20,14 +21,14 @@ LAND_BROWN = (139, 69, 19)
 CLOUD_WHITE = (255, 255, 255, 100)
 ATMOSPHERE_BLUE = (135, 206, 250, 50)
 
-# Create screen
+# Create screen that fills browser tab
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Earth from Space - HackMIT Mission")
 clock = pygame.time.Clock()
 
-# Generate random stars
+# Generate fewer stars for faster startup
 stars = []
-for _ in range(300):
+for _ in range(150):  # Reduced from 300 to 150
     x = random.randint(0, SCREEN_WIDTH)
     y = random.randint(0, SCREEN_HEIGHT)
     brightness = random.randint(100, 255)
@@ -48,83 +49,71 @@ def draw_stars(surface):
         else:
             pygame.draw.circle(surface, color, (x, y), 2)
 
+# Load Earth image
+earth_image = None
+
+def load_earth_image(radius):
+    """Load and scale Earth image"""
+    global earth_image
+    try:
+        earth_image = pygame.image.load("Earth.png")
+        earth_image = pygame.transform.scale(earth_image, (radius * 2, radius * 2))
+    except:
+        try:
+            earth_image = pygame.image.load("earth_texture.jpg")
+            earth_image = pygame.transform.scale(earth_image, (radius * 2, radius * 2))
+        except:
+            earth_image = None
+
 def draw_earth_continents(surface, center, radius, rotation_angle=0):
-    """Draw simplified Earth continents"""
-    # Create a surface for the Earth
-    earth_surface = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+    """Draw Earth using static image with transparent background"""
+    global earth_image
     
-    # Draw ocean base
-    pygame.draw.circle(earth_surface, OCEAN_BLUE, (radius, radius), radius)
+    # Load image if not already loaded
+    if earth_image is None:
+        load_earth_image(radius)
     
-    # Simplified continent shapes (rotated based on rotation_angle)
-    continents = [
-        # North America (approximate)
-        [(0.3, 0.2), (0.5, 0.15), (0.6, 0.3), (0.4, 0.4), (0.2, 0.35)],
-        # Europe/Africa
-        [(0.5, 0.2), (0.7, 0.25), (0.65, 0.6), (0.55, 0.7), (0.45, 0.5)],
-        # Asia
-        [(0.7, 0.15), (0.9, 0.2), (0.95, 0.4), (0.8, 0.45), (0.75, 0.3)],
-        # South America
-        [(0.3, 0.5), (0.4, 0.45), (0.45, 0.8), (0.35, 0.85), (0.25, 0.7)],
-    ]
-    
-    for continent in continents:
-        # Convert relative coordinates to actual coordinates and apply rotation
-        points = []
-        for rel_x, rel_y in continent:
-            # Convert to centered coordinates
-            x = (rel_x - 0.5) * radius * 1.8
-            y = (rel_y - 0.5) * radius * 1.8
-            
-            # Apply rotation
-            rotated_x = x * math.cos(rotation_angle) - y * math.sin(rotation_angle)
-            rotated_y = x * math.sin(rotation_angle) + y * math.cos(rotation_angle)
-            
-            # Convert back to surface coordinates
-            final_x = rotated_x + radius
-            final_y = rotated_y + radius
-            
-            # Only add points that are visible (within the circle)
-            if (rotated_x ** 2 + rotated_y ** 2) <= (radius ** 2):
-                points.append((final_x, final_y))
+    if earth_image:
+        # Create a circular mask to remove background
+        mask_surface = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+        pygame.draw.circle(mask_surface, (255, 255, 255, 255), (radius, radius), radius)
         
-        if len(points) >= 3:
-            pygame.draw.polygon(earth_surface, LAND_GREEN, points)
-    
-    # Add some brown landmasses for variety
-    brown_areas = [
-        [(0.6, 0.3), (0.75, 0.35), (0.7, 0.5), (0.55, 0.45)],
-        [(0.2, 0.6), (0.35, 0.65), (0.3, 0.75), (0.15, 0.7)],
-    ]
-    
-    for area in brown_areas:
-        points = []
-        for rel_x, rel_y in area:
-            x = (rel_x - 0.5) * radius * 1.8
-            y = (rel_y - 0.5) * radius * 1.8
-            
-            rotated_x = x * math.cos(rotation_angle) - y * math.sin(rotation_angle)
-            rotated_y = x * math.sin(rotation_angle) + y * math.cos(rotation_angle)
-            
-            final_x = rotated_x + radius
-            final_y = rotated_y + radius
-            
-            if (rotated_x ** 2 + rotated_y ** 2) <= (radius ** 2):
-                points.append((final_x, final_y))
+        # Create Earth surface with transparency
+        earth_surface = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+        earth_surface.fill((0, 0, 0, 0))  # Transparent background
         
-        if len(points) >= 3:
-            pygame.draw.polygon(earth_surface, LAND_BROWN, points)
-    
-    # Blit the Earth surface to the main surface
-    earth_rect = earth_surface.get_rect(center=center)
-    surface.blit(earth_surface, earth_rect)
+        # Scale and center the Earth image
+        scaled_earth = pygame.transform.scale(earth_image, (radius * 2, radius * 2))
+        
+        # Apply circular mask to remove background
+        for x in range(radius * 2):
+            for y in range(radius * 2):
+                # Check if pixel is within circle
+                dx = x - radius
+                dy = y - radius
+                distance = (dx * dx + dy * dy) ** 0.5
+                
+                if distance <= radius:
+                    # Copy pixel from original image
+                    try:
+                        pixel = scaled_earth.get_at((x, y))
+                        earth_surface.set_at((x, y), pixel)
+                    except:
+                        pass
+        
+        # Blit the masked Earth surface
+        earth_rect = earth_surface.get_rect(center=center)
+        surface.blit(earth_surface, earth_rect)
+    else:
+        # Fallback to simple circle if image loading fails
+        pygame.draw.circle(surface, OCEAN_BLUE, center, radius)
 
 def draw_atmosphere(surface, center, radius):
     """Draw atmospheric glow around Earth"""
-    # Create multiple layers for atmospheric effect
-    for i in range(5):
-        glow_radius = radius + (i * 8)
-        alpha = max(10, 50 - (i * 10))
+    # Reduced layers for faster rendering
+    for i in range(3):  # Reduced from 5 to 3 layers
+        glow_radius = radius + (i * 10)
+        alpha = max(15, 60 - (i * 15))
         
         # Create a surface for the glow layer
         glow_surface = pygame.Surface((glow_radius * 2, glow_radius * 2), pygame.SRCALPHA)
@@ -140,11 +129,10 @@ def draw_clouds(surface, center, radius, cloud_rotation=0):
     """Draw cloud patterns on Earth"""
     cloud_surface = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
     
-    # Create cloud patterns
+    # Fewer cloud patches for faster rendering
     cloud_patches = [
         (0.2, 0.3, 0.15), (0.7, 0.2, 0.12), (0.4, 0.6, 0.18),
-        (0.8, 0.5, 0.1), (0.1, 0.7, 0.13), (0.6, 0.8, 0.11),
-        (0.3, 0.1, 0.09), (0.9, 0.7, 0.14), (0.5, 0.4, 0.16)
+        (0.8, 0.5, 0.1), (0.1, 0.7, 0.13), (0.6, 0.8, 0.11)
     ]
     
     for rel_x, rel_y, cloud_size in cloud_patches:
@@ -168,50 +156,48 @@ def draw_clouds(surface, center, radius, cloud_rotation=0):
     cloud_rect = cloud_surface.get_rect(center=center)
     surface.blit(cloud_surface, cloud_rect, special_flags=pygame.BLEND_ALPHA_SDL2)
 
-# Main game loop
-running = True
-rotation_angle = 0
-cloud_rotation = 0
+async def main():
+    # Main game loop variables
+    running = True
+    rotation_angle = 0
+    cloud_rotation = 0
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 running = False
-    
-    # Clear screen with deep space color
-    screen.fill(BLACK)
-    
-    # Draw stars
-    draw_stars(screen)
-    
-    # Draw atmospheric glow first (behind Earth)
-    draw_atmosphere(screen, EARTH_CENTER, EARTH_RADIUS)
-    
-    # Draw Earth with continents
-    draw_earth_continents(screen, EARTH_CENTER, EARTH_RADIUS, rotation_angle)
-    
-    # Draw clouds
-    draw_clouds(screen, EARTH_CENTER, EARTH_RADIUS, cloud_rotation)
-    
-    # Update rotation angles for animation
-    rotation_angle += 0.005  # Earth rotates slowly
-    cloud_rotation += 0.003  # Clouds move slightly faster
-    
-    # Add title text
-    font = pygame.font.Font(None, 36)
-    title_text = font.render("Earth from Space - HackMIT Mission", True, (255, 255, 255))
-    screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 50))
-    
-    # Add controls text
-    small_font = pygame.font.Font(None, 24)
-    controls_text = small_font.render("Press ESC to exit", True, (200, 200, 200))
-    screen.blit(controls_text, (20, SCREEN_HEIGHT - 30))
-    
-    # Update display
-    pygame.display.flip()
-    clock.tick(60)  # 60 FPS
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+        
+        # Clear screen with deep space color
+        screen.fill(BLACK)
+        
+        # Draw stars
+        draw_stars(screen)
+        
+        # Draw Earth with continents only
+        draw_earth_continents(screen, EARTH_CENTER, EARTH_RADIUS, rotation_angle)
+        
+        # No rotation - Earth stays static
+        # rotation_angle += 0.005  # Earth rotates slowly
+        # cloud_rotation += 0.003  # Clouds move slightly faster
+        
+        # Add title text
+        font = pygame.font.Font(None, 36)
+        title_text = font.render("Earth from Space - HackMIT Mission", True, (255, 255, 255))
+        screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 50))
+        
+        # Add controls text
+        small_font = pygame.font.Font(None, 24)
+        controls_text = small_font.render("Press ESC to exit", True, (200, 200, 200))
+        screen.blit(controls_text, (20, SCREEN_HEIGHT - 30))
+        
+        # Update display
+        pygame.display.flip()
+        await asyncio.sleep(0)  # Required for pygbag
+        clock.tick(30)  # Reduced to 30 FPS for better performance
 
-pygame.quit()
+    pygame.quit()
+
+asyncio.run(main())

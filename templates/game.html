@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth from Space - HackMIT Mission</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #gameCanvas {
+            border: 2px solid #4facfe;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(79, 172, 254, 0.5);
+        }
+
+        .game-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(79, 172, 254, 0.8);
+            z-index: 10;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #ccc;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* 2D Game UI Overlay */
+        #gameUI {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .mission-panel {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #4facfe;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            pointer-events: auto;
+            min-width: 250px;
+        }
+
+        .earth-panel {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 40, 20, 0.9);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            pointer-events: auto;
+            min-width: 200px;
+        }
+
+        .control-buttons {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+        }
+
+        .game-btn {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .scan-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .photo-btn {
+            background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+        }
+
+        #notifications {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-title">🚀 Earth from Space - HackMIT Mission</div>
+    <a href="/logout" class="logout-btn">Logout</a>
+    <div class="controls">Press ESC to return to main page | Mouse to rotate view | Click to interact</div>
+    
+    <!-- 2D Game UI Overlay -->
+    <div id="gameUI">
+        <!-- Mission Status Panel -->
+        <div class="mission-panel">
+            <h3 style="margin: 0 0 10px 0; color: #4facfe;">🛰️ MISSION STATUS</h3>
+            <div id="missionObjective" style="margin-bottom: 10px;">Objective: Observe Earth from orbit</div>
+            <div id="altitude" style="margin-bottom: 5px;">Altitude: 408 km</div>
+            <div id="velocity" style="margin-bottom: 5px;">Velocity: 7.66 km/s</div>
+            <div id="orbitalPeriod" style="margin-bottom: 5px;">Orbital Period: 92.9 min</div>
+            <div id="missionTime" style="color: #4facfe;">Mission Time: 00:00:00</div>
+        </div>
+        
+        <!-- Earth Information Panel -->
+        <div class="earth-panel">
+            <h3 style="margin: 0 0 10px 0; color: #00ff88;">🌍 EARTH DATA</h3>
+            <div id="currentRegion" style="margin-bottom: 5px;">Region: Pacific Ocean</div>
+            <div id="localTime" style="margin-bottom: 5px;">Local Time: Day</div>
+            <div id="weather" style="margin-bottom: 5px;">Weather: Clear</div>
+            <div id="temperature" style="color: #00ff88;">Temp: 22°C</div>
+        </div>
+        
+        <!-- Interactive Buttons -->
+        <div class="control-buttons">
+            <button id="zoomBtn" class="game-btn">🔍 Zoom</button>
+            <button id="scanBtn" class="game-btn scan-btn">📡 Scan</button>
+            <button id="photoBtn" class="game-btn photo-btn">📸 Photo</button>
+        </div>
+        
+        <!-- Notification Area -->
+        <div id="notifications"></div>
+    </div>
+    
+    <canvas id="gameCanvas" width="1000" height="1000"></canvas>
+
+    <script>
+        // Game state
+        let gameState = {
+            missionStartTime: Date.now(),
+            zoomLevel: 1,
+            isScanning: false,
+            photosTaken: 0,
+            currentRegion: 'Pacific Ocean',
+            earthRotation: 0,
+            cloudRotation: 0
+        };
+
+        // Canvas setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Constants (converted from Pygame)
+        const SCREEN_WIDTH = 1000;
+        const SCREEN_HEIGHT = 1000;
+        const EARTH_RADIUS = 200;
+        const EARTH_CENTER = { x: SCREEN_WIDTH / 2, y: SCREEN_HEIGHT / 2 };
+
+        // Colors
+        const BLACK = '#000000';
+        const DEEP_BLUE = '#003264';
+        const OCEAN_BLUE = '#1E90FF';
+        const LAND_GREEN = '#228B22';
+        const LAND_BROWN = '#8B4513';
+        const CLOUD_WHITE = 'rgba(255, 255, 255, 0.6)';
+        const ATMOSPHERE_BLUE = 'rgba(135, 206, 250, 0.3)';
+
+        // Generate stars
+        const stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * SCREEN_WIDTH,
+                y: Math.random() * SCREEN_HEIGHT,
+                brightness: Math.random() * 155 + 100,
+                size: Math.random() < 0.8 ? 1 : 2
+            });
+        }
+
+        // Draw functions (converted from Pygame)
+        function drawStars() {
+            stars.forEach(star => {
+                const twinkle = Math.random() * 60 - 30;
+                const brightness = Math.max(50, Math.min(255, star.brightness + twinkle));
+                const gray = Math.floor(brightness);
+                
+                ctx.fillStyle = `rgb(${gray}, ${gray}, ${gray})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawEarthContinents(rotationAngle) {
+            // Draw ocean base
+            ctx.fillStyle = OCEAN_BLUE;
+            ctx.beginPath();
+            ctx.arc(EARTH_CENTER.x, EARTH_CENTER.y, EARTH_RADIUS, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Continent data (converted from Pygame)
+            const continents = [
+                // North America
+                [[0.3, 0.2], [0.5, 0.15], [0.6, 0.3], [0.4, 0.4], [0.2, 0.35]],
+                // Europe/Africa
+                [[0.5, 0.2], [0.7, 0.25], [0.65, 0.6], [0.55, 0.7], [0.45, 0.5]],
+                // Asia
+                [[0.7, 0.15], [0.9, 0.2], [0.95, 0.4], [0.8, 0.45], [0.75, 0.3]],
+                // South America
+                [[0.3, 0.5], [0.4, 0.45], [0.45, 0.8], [0.35, 0.85], [0.25, 0.7]]
+            ];
+
+            ctx.fillStyle = LAND_GREEN;
+            continents.forEach(continent => {
+                const points = [];
+                continent.forEach(([relX, relY]) => {
+                    // Convert to centered coordinates
+                    const x = (relX - 0.5) * EARTH_RADIUS * 1.8;
+                    const y = (relY - 0.5) * EARTH_RADIUS * 1.8;
+                    
+                    // Apply rotation
+                    const rotatedX = x * Math.cos(rotationAngle) - y * Math.sin(rotationAngle);
+                    const rotatedY = x * Math.sin(rotationAngle) + y * Math.cos(rotationAngle);
+                    
+                    // Convert back to screen coordinates
+                    const finalX = rotatedX + EARTH_CENTER.x;
+                    const finalY = rotatedY + EARTH_CENTER.y;
+                    
+                    // Only add points that are visible (within the circle)
+                    if (rotatedX * rotatedX + rotatedY * rotatedY <= EARTH_RADIUS * EARTH_RADIUS) {
+                        points.push([finalX, finalY]);
+                    }
+                });
+
+                if (points.length >= 3) {
+                    ctx.beginPath();
+                    ctx.moveTo(points[0][0], points[0][1]);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i][0], points[i][1]);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            });
+
+            // Add some brown landmasses
+            const brownAreas = [
+                [[0.6, 0.3], [0.75, 0.35], [0.7, 0.5], [0.55, 0.45]],
+                [[0.2, 0.6], [0.35, 0.65], [0.3, 0.75], [0.15, 0.7]]
+            ];
+
+            ctx.fillStyle = LAND_BROWN;
+            brownAreas.forEach(area => {
+                const points = [];
+                area.forEach(([relX, relY]) => {
+                    const x = (relX - 0.5) * EARTH_RADIUS * 1.8;
+                    const y = (relY - 0.5) * EARTH_RADIUS * 1.8;
+                    
+                    const rotatedX = x * Math.cos(rotationAngle) - y * Math.sin(rotationAngle);
+                    const rotatedY = x * Math.sin(rotationAngle) + y * Math.cos(rotationAngle);
+                    
+                    const finalX = rotatedX + EARTH_CENTER.x;
+                    const finalY = rotatedY + EARTH_CENTER.y;
+                    
+                    if (rotatedX * rotatedX + rotatedY * rotatedY <= EARTH_RADIUS * EARTH_RADIUS) {
+                        points.push([finalX, finalY]);
+                    }
+                });
+
+                if (points.length >= 3) {
+                    ctx.beginPath();
+                    ctx.moveTo(points[0][0], points[0][1]);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i][0], points[i][1]);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawAtmosphere() {
+            // Create atmospheric glow
+            for (let i = 0; i < 3; i++) {
+                const glowRadius = EARTH_RADIUS + (i * 15);
+                const alpha = Math.max(0.05, 0.2 - (i * 0.05));
+                
+                const gradient = ctx.createRadialGradient(
+                    EARTH_CENTER.x, EARTH_CENTER.y, EARTH_RADIUS,
+                    EARTH_CENTER.x, EARTH_CENTER.y, glowRadius
+                );
+                gradient.addColorStop(0, `rgba(135, 206, 250, 0)`);
+                gradient.addColorStop(1, `rgba(135, 206, 250, ${alpha})`);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(EARTH_CENTER.x, EARTH_CENTER.y, glowRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawClouds(cloudRotation) {
+            const cloudPatches = [
+                [0.2, 0.3, 0.15], [0.7, 0.2, 0.12], [0.4, 0.6, 0.18],
+                [0.8, 0.5, 0.1], [0.1, 0.7, 0.13], [0.6, 0.8, 0.11]
+            ];
+
+            ctx.fillStyle = CLOUD_WHITE;
+            cloudPatches.forEach(([relX, relY, cloudSize]) => {
+                const x = (relX - 0.5) * EARTH_RADIUS * 1.6;
+                const y = (relY - 0.5) * EARTH_RADIUS * 1.6;
+                
+                const rotatedX = x * Math.cos(cloudRotation) - y * Math.sin(cloudRotation);
+                const rotatedY = x * Math.sin(cloudRotation) + y * Math.cos(cloudRotation);
+                
+                const finalX = rotatedX + EARTH_CENTER.x;
+                const finalY = rotatedY + EARTH_CENTER.y;
+                
+                if (rotatedX * rotatedX + rotatedY * rotatedY <= EARTH_RADIUS * EARTH_RADIUS) {
+                    const cloudRadius = cloudSize * EARTH_RADIUS;
+                    ctx.beginPath();
+                    ctx.arc(finalX, finalY, cloudRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawClouds(cloudRotation) {
+            const cloudPatches = [
+                [0.2, 0.3, 0.15], [0.7, 0.2, 0.12], [0.4, 0.6, 0.18],
+                [0.8, 0.5, 0.1], [0.1, 0.7, 0.13], [0.6, 0.8, 0.11]
+            ];
+
+            ctx.fillStyle = CLOUD_WHITE;
+            cloudPatches.forEach(([relX, relY, cloudSize]) => {
+                const x = (relX - 0.5) * EARTH_RADIUS * 1.6;
+                const y = (relY - 0.5) * EARTH_RADIUS * 1.6;
+                
+                const rotatedX = x * Math.cos(cloudRotation) - y * Math.sin(cloudRotation);
+                const rotatedY = x * Math.sin(cloudRotation) + y * Math.cos(cloudRotation);
+                
+                const finalX = rotatedX + EARTH_CENTER.x;
+                const finalY = rotatedY + EARTH_CENTER.y;
+                
+                if (rotatedX * rotatedX + rotatedY * rotatedY <= EARTH_RADIUS * EARTH_RADIUS) {
+                    const cloudRadius = cloudSize * EARTH_RADIUS;
+                    ctx.beginPath();
+                    ctx.arc(finalX, finalY, cloudRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        // 2D Game UI Functions
+        function updateMissionTime() {
+            const elapsed = Date.now() - gameState.missionStartTime;
+            const hours = Math.floor(elapsed / 3600000);
+            const minutes = Math.floor((elapsed % 3600000) / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            document.getElementById('missionTime').textContent = 
+                `Mission Time: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateEarthData() {
+            const regions = ['Pacific Ocean', 'North America', 'Atlantic Ocean', 'Europe', 'Africa', 'Asia', 'Australia'];
+            const regionIndex = Math.floor((gameState.earthRotation * 2) % regions.length);
+            gameState.currentRegion = regions[regionIndex];
+            
+            const dayNightCycle = Math.sin(Date.now() * 0.0001) * 0.5 + 0.5;
+            const isDay = dayNightCycle > 0.5;
+            
+            document.getElementById('currentRegion').textContent = `Region: ${gameState.currentRegion}`;
+            document.getElementById('localTime').textContent = `Local Time: ${isDay ? 'Day' : 'Night'}`;
+            document.getElementById('weather').textContent = `Weather: ${Math.random() > 0.7 ? 'Cloudy' : 'Clear'}`;
+            document.getElementById('temperature').textContent = `Temp: ${Math.floor(15 + Math.random() * 20)}°C`;
+        }
+
+        function showNotification(message, duration = 3000) {
+            const notifications = document.getElementById('notifications');
+            notifications.textContent = message;
+            notifications.style.opacity = '1';
+            setTimeout(() => {
+                notifications.style.opacity = '0';
+            }, duration);
+        }
+
+        // Interactive functions
+        function handleZoom() {
+            gameState.zoomLevel = gameState.zoomLevel === 1 ? 2 : 1;
+            showNotification(`${gameState.zoomLevel === 1 ? 'Zoomed out' : 'Zoomed in'} - Altitude: ${gameState.zoomLevel === 1 ? '408' : '204'} km`);
+        }
+
+        function handleScan() {
+            if (gameState.isScanning) return;
+            
+            gameState.isScanning = true;
+            showNotification('🔍 Scanning Earth surface...', 2000);
+            
+            setTimeout(() => {
+                gameState.isScanning = false;
+                showNotification(`📊 Scan complete! Detected: ${Math.floor(Math.random() * 50 + 10)} surface features`);
+            }, 2000);
+        }
+
+        function handlePhoto() {
+            gameState.photosTaken++;
+            showNotification(`📸 Photo captured! Total photos: ${gameState.photosTaken}`);
+            
+            // Camera flash effect
+            const flash = document.createElement('div');
+            flash.style.position = 'fixed';
+            flash.style.top = '0';
+            flash.style.left = '0';
+            flash.style.width = '100%';
+            flash.style.height = '100%';
+            flash.style.backgroundColor = 'white';
+            flash.style.opacity = '0.8';
+            flash.style.pointerEvents = 'none';
+            flash.style.zIndex = '1000';
+            document.body.appendChild(flash);
+            
+            setTimeout(() => {
+                flash.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(flash), 200);
+            }, 100);
+        }
+
+        // Event listeners
+        document.getElementById('zoomBtn').addEventListener('click', handleZoom);
+        document.getElementById('scanBtn').addEventListener('click', handleScan);
+        document.getElementById('photoBtn').addEventListener('click', handlePhoto);
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Check if click is on Earth
+            const dx = x - EARTH_CENTER.x;
+            const dy = y - EARTH_CENTER.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance <= EARTH_RADIUS) {
+                showNotification(`Clicked on ${gameState.currentRegion}`, 1500);
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                window.location.href = '/';
+            }
+        });
+
+        // Main game loop
+        function gameLoop() {
+            // Clear screen
+            ctx.fillStyle = BLACK;
+            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            
+            // Draw stars
+            drawStars();
+            
+            // Draw atmospheric glow first (behind Earth)
+            drawAtmosphere();
+            
+            // Draw Earth with continents
+            drawEarthContinents(gameState.earthRotation);
+            
+            // Draw clouds
+            drawClouds(gameState.cloudRotation);
+            
+            // Update rotation angles
+            gameState.earthRotation += 0.005;
+            gameState.cloudRotation += 0.007;
+            
+            // Update UI
+            updateMissionTime();
+            updateEarthData();
+            
+            // Continue animation
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game
+        gameLoop();
+    </script>
+</body>
+</html>

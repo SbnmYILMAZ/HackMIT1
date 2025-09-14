@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from models import db, User
 from forms import RegistrationForm, LoginForm, ForgotPasswordForm, SecurityQuestionForm
+from datetime import datetime
 import os
 
 app = Flask(__name__)
@@ -63,46 +64,22 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'GET':
-        form = LoginForm()
-        return render_template('login.html', form=form)
-    
-    # Handle both form submission and direct POST
-    if request.form.get('username') and request.form.get('password'):
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         
-        # Check database for user
-        user = User.query.filter_by(username=username, password=password).first()
-        if user:
-            # Add user to session
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.password == password:
             session['user_id'] = user.id
             session['username'] = user.username
-            
-            # Update last_login timestamp
-            from datetime import datetime
             user.last_login = datetime.utcnow()
             db.session.commit()
             
-            # Auto-launch the game (non-blocking)
-            import subprocess
-            import os
+            flash('Login successful! Welcome back!', 'success')
             
-            try:
-                # Get the path to main.py
-                game_path = os.path.join(os.path.dirname(__file__), 'main.py')
-                
-                # Launch the game as a subprocess (detached)
-                subprocess.Popen(['python3', game_path], 
-                               stdout=subprocess.DEVNULL, 
-                               stderr=subprocess.DEVNULL,
-                               start_new_session=True)
-                
-                flash(f'Welcome back, {user.username}! Game launching... 🚀', 'success')
-            except Exception as e:
-                flash(f'Welcome back, {user.username}! 🚀', 'success')
-            
-            return redirect(url_for('index'))
+            # Redirect to web-based game instead of launching pygame
+            return redirect(url_for('game'))
         else:
             flash('Invalid username or password. Please try again.', 'error')
             return redirect(url_for('index'))
@@ -153,10 +130,20 @@ def security_questions():
     
     return render_template('security_questions.html', form=form, user=user)
 
+@app.route('/game')
+def game():
+    # Check if user is logged in
+    if 'user_id' not in session:
+        flash('Please log in to access the game.', 'error')
+        return redirect(url_for('index'))
+    
+    # Serve the WebGL Earth game directly
+    return render_template('game.html')
+
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('You have been logged out successfully. 🚀', 'success')
+    flash('You have been logged out successfully.', 'success')
     return redirect(url_for('index'))
 
 
