@@ -1,12 +1,17 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { Database } from '@/lib/types/database'
+import { validateEnvVars, env } from '@/lib/env'
+
+// Validate environment variables
+validateEnvVars()
 
 export const createClient = () => {
   const cookieStore = cookies()
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  return createServerClient<Database>(
+    env.supabase.url!,
+    env.supabase.anonKey!,
     {
       cookies: {
         getAll() {
@@ -27,3 +32,19 @@ export const createClient = () => {
     }
   )
 }
+
+// Admin client for server-side operations
+export const supabaseAdmin = createServerClient<Database>(
+  env.supabase.url!,
+  env.supabase.serviceRoleKey!,
+  {
+    cookies: {
+      getAll() {
+        return []
+      },
+      setAll() {
+        // No-op for admin client
+      },
+    },
+  }
+)
