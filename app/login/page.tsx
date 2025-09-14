@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState, Suspense, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,14 +8,16 @@ import { Label } from "@/components/ui/label"
 import { FeedbackModal } from "@/components/ui/feedback-modal"
 import { Brain, Eye, EyeOff, User, Lock } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { signInWithUsername } from "@/lib/auth/auth-helpers"
+import { useAuth } from "@/hooks/use-auth"
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [hasRedirected, setHasRedirected] = useState(false)
   const [modalState, setModalState] = useState<{
     isOpen: boolean
     type: 'success' | 'error' | 'loading'
@@ -25,12 +25,17 @@ export default function LoginPage() {
     message: string
   }>({ isOpen: false, type: 'success', title: '', message: '' })
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard'
+  const { user, loading } = useAuth()
+
+  // No client-side redirects - let middleware handle it
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    // Mostrar modal de carga
+    // Show loading modal
     setModalState({
       isOpen: true,
       type: 'loading',
@@ -46,7 +51,7 @@ export default function LoginPage() {
       const result = await signInWithUsername({ username, password })
       
       if (result.user) {
-        // Mostrar modal de éxito
+        // Show success modal and let middleware handle redirect
         setModalState({
           isOpen: true,
           type: 'success',
@@ -54,15 +59,17 @@ export default function LoginPage() {
           message: 'Redirecting to dashboard...'
         })
         
-        // Redirigir después de un breve delay
+        // Wait for auth to complete, then force page refresh to sync cookies
         setTimeout(() => {
+          console.log('Attempting redirect to dashboard...')
           setModalState(prev => ({ ...prev, isOpen: false }))
-          window.location.href = "/dashboard"
-        }, 1200)
+          // Force full page navigation to ensure server-side auth works
+          window.location.assign('/dashboard')
+        }, 2000)
       }
       
     } catch (err) {
-      // Mostrar modal de error
+      // Show error modal
       setModalState({
         isOpen: true,
         type: 'error',
@@ -194,9 +201,26 @@ export default function LoginPage() {
         type={modalState.type}
         title={modalState.title}
         message={modalState.message}
-        autoClose={false}
+        autoClose={modalState.type === 'success'}
         autoCloseDelay={1500}
       />
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <div className="w-5 h-5 bg-primary-foreground rounded" />
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
   )
 }

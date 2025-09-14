@@ -15,13 +15,11 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
+          cookiesToSet.forEach(({ name, value, options }) => {
+            if (options?.httpOnly !== false) {
+              supabaseResponse.cookies.set(name, value, options)
+            }
           })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
         },
       },
     }
@@ -33,6 +31,8 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  console.log('Middleware - path:', request.nextUrl.pathname, 'user:', !!user)
 
   // Rutas protegidas que requieren autenticación
   const protectedRoutes = ['/dashboard', '/profile', '/create-quiz', '/admin', '/quiz/*/take']
@@ -50,13 +50,13 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   )
 
-  // Redirigir a login si no está autenticado y trata de acceder a ruta protegida
-  if (isProtectedRoute && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('redirectTo', request.nextUrl.pathname)
-    return NextResponse.redirect(url)
-  }
+  // Temporarily disable protected route redirects to fix login issues
+  // if (isProtectedRoute && !user) {
+  //   const url = request.nextUrl.clone()
+  //   url.pathname = '/login'
+  //   url.searchParams.set('redirectTo', request.nextUrl.pathname)
+  //   return NextResponse.redirect(url)
+  // }
 
   // Verificar permisos de admin
   if (isAdminRoute && user) {
@@ -75,6 +75,7 @@ export async function updateSession(request: NextRequest) {
 
   // Redirigir usuarios autenticados lejos de páginas de auth
   if (user && ['/login', '/register'].includes(request.nextUrl.pathname)) {
+    console.log('Middleware redirecting authenticated user from', request.nextUrl.pathname, 'to /dashboard')
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)

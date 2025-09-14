@@ -1,5 +1,77 @@
 import { supabase } from '@/lib/supabase/client'
+import { createServerClient } from '@supabase/ssr'
+import { env } from '@/lib/env'
 import type { SignUpWithUsernameData, SignInWithUsernameData, AuthUser, Database } from '@/lib/types/database'
+
+// Server-side authentication function for API routes
+export async function getAuth(req: Request) {
+  try {
+    // Extract cookies from the request headers
+    const cookieHeader = req.headers.get('cookie') || ''
+    const cookies = new Map<string, string>()
+    
+    // Parse cookies from header
+    cookieHeader.split(';').forEach(cookie => {
+      const [name, value] = cookie.trim().split('=')
+      if (name && value) {
+        cookies.set(name, decodeURIComponent(value))
+      }
+    })
+
+    // Create server client with cookies
+    const supabaseServer = createServerClient<Database>(
+      env.supabase.url!,
+      env.supabase.anonKey!,
+      {
+        cookies: {
+          getAll() {
+            return Array.from(cookies.entries()).map(([name, value]) => ({ name, value }))
+          },
+          setAll() {
+            // No-op for API routes
+          },
+        },
+      }
+    )
+
+    const { data: { user }, error } = await supabaseServer.auth.getUser()
+    
+    if (error || !user) {
+      throw new Error('Unauthorized')
+    }
+
+    // Get user profile
+    const { data: profile } = await supabaseServer
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    type ProfileData = {
+      id: string;
+      email: string | null;
+      username: string;
+      full_name: string | null;
+      avatar_url: string | null;
+      role: 'user' | 'admin';
+    } | null
+
+    const typedProfile = profile as ProfileData
+
+    const authUser: AuthUser = {
+      id: user.id,
+      email: typedProfile?.email || undefined,
+      username: typedProfile?.username || '',
+      full_name: typedProfile?.full_name || undefined,
+      avatar_url: typedProfile?.avatar_url || undefined,
+      role: typedProfile?.role || 'user'
+    }
+
+    return { user: authUser }
+  } catch (error) {
+    throw new Error('Unauthorized')
+  }
+}
 
 // Función para registrarse con username
 export async function signUpWithUsername(data: SignUpWithUsernameData) {
@@ -19,14 +91,14 @@ export async function signUpWithUsername(data: SignUpWithUsernameData) {
     })
 
     if (authError) {
-      // Manejar errores específicos en español
+      // Handle specific errors in English
       if (authError.message.includes('already registered')) {
-        throw new Error('Este nombre de usuario ya está registrado')
+        throw new Error('This username is already registered')
       }
       if (authError.message.includes('Password should be')) {
-        throw new Error('La contraseña debe tener al menos 6 caracteres')
+        throw new Error('Password must be at least 6 characters long')
       }
-      throw new Error(`Error de registro: ${authError.message}`)
+      throw new Error(`Registration error: ${authError.message}`)
     }
 
     return { user: authData.user, session: authData.session }
@@ -49,13 +121,13 @@ export async function signInWithUsername(data: SignInWithUsernameData) {
     type ProfileLoginData = { email: string | null; id: string } | null
     
     if (profileError || !profile) {
-      throw new Error('Nombre de usuario no encontrado')
+      throw new Error('Username not found')
     }
 
     const typedProfile = profile as { email: string | null; id: string }
     
     if (!typedProfile.email) {
-      throw new Error('Nombre de usuario no encontrado')
+      throw new Error('Username not found')
     }
 
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -65,9 +137,9 @@ export async function signInWithUsername(data: SignInWithUsernameData) {
 
     if (authError) {
       if (authError.message.includes('Invalid login credentials')) {
-        throw new Error('Credenciales inválidas')
+        throw new Error('Invalid credentials')
       }
-      throw new Error(`Error de inicio de sesión: ${authError.message}`)
+      throw new Error(`Sign in error: ${authError.message}`)
     }
 
     return { user: authData.user, session: authData.session }
@@ -82,7 +154,7 @@ export async function signOut() {
   try {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      throw new Error(`Error al cerrar sesión: ${error.message}`)
+      throw new Error(`Sign out error: ${error.message}`)
     }
   } catch (error) {
     console.error('Error en signOut:', error)
@@ -140,7 +212,7 @@ export async function updateProfile(updates: Partial<Pick<AuthUser, 'full_name' 
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
-      throw new Error('Usuario no autenticado')
+      throw new Error('User not authenticated')
     }
 
     const { data, error } = await (supabase as any)
@@ -154,7 +226,7 @@ export async function updateProfile(updates: Partial<Pick<AuthUser, 'full_name' 
       .single()
 
     if (error) {
-      throw new Error(`Error al actualizar perfil: ${error.message}`)
+      throw new Error(`Profile update error: ${error.message}`)
     }
 
     return data
@@ -194,7 +266,7 @@ export async function updatePassword(newPassword: string) {
     })
 
     if (error) {
-      throw new Error(`Error al cambiar contraseña: ${error.message}`)
+      throw new Error(`Password change error: ${error.message}`)
     }
   } catch (error) {
     console.error('Error en updatePassword:', error)

@@ -43,11 +43,11 @@ export async function POST(req: Request) {
       .single() as { data: Pick<Quiz, 'id' | 'is_published'> | null; error: any };
 
     if (quizError || !quiz) {
-      return NextResponse.json({ error: "Quiz no encontrado" }, { status: 404 });
+      return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
     }
 
     if (!quiz.is_published) {
-      return NextResponse.json({ error: "Quiz no está publicado" }, { status: 400 });
+      return NextResponse.json({ error: "Quiz is not published" }, { status: 400 });
     }
 
     // Verificar si ya existe un intento en progreso
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
 
     if (existingAttempt) {
       return NextResponse.json(
-        { error: "Ya tienes un intento en progreso para este quiz" },
+        { error: "You already have an attempt in progress for this quiz" },
         { status: 400 }
       );
     }
@@ -80,6 +80,6 @@ export async function POST(req: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ attempt: data }, { status: 201 });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? "Solicitud incorrecta" }, { status: 400 });
+    return NextResponse.json({ error: e?.message ?? "Bad request" }, { status: 400 });
   }
 }

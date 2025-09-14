@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { CheckCircle, XCircle, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -69,6 +69,9 @@ export function FeedbackModal({
         )}
         showCloseButton={type !== 'loading'}
       >
+        <DialogTitle className="sr-only">{title}</DialogTitle>
+        <DialogDescription className="sr-only">{message}</DialogDescription>
+        
         <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
           <div className="mb-4">
             {getIcon()}
