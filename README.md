@@ -2,7 +2,9 @@
 
 **An Interactive Learning Platform for Creating and Taking Quizzes**
 
-QuizMaster is a modern, accessible educational platform built with Next.js that enables users to create custom quizzes, track their learning progress, and engage with interactive content. The platform features voice accessibility, real-time analytics, and a beautiful cyberpunk-inspired UI.
+QuizMaster is a modern, accessible educational platform built with Next.js that enables users to create custom quizzes, track their learning progress, and engage with interactive content. The platform features a beautiful cyberpunk-inspired UI, comprehensive admin analytics, and robust accessibility support.
+
+> **Development Status:** This is an active development project. Some features are fully implemented while others are in prototype/mock stage.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
