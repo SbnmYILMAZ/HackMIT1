@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/server"
 import { z } from "zod"
-import { getAuth } from "@/lib/auth"
+import { getAuth } from "@/lib/auth/auth-helpers"
 import type { Database } from "@/lib/types/database"
 
 const createSchema = z.object({
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         description: parsed.description,
         subject: parsed.subject,
         difficulty: parsed.difficulty,
-        created_by: auth.userId,
+        created_by: auth.user.id,
         is_published: false, // New quizzes start as drafts
       })
       .select(`

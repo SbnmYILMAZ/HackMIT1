@@ -77,7 +77,7 @@ export async function fetchQuizzes(filters?: QuizFilters): Promise<QuizWithProfi
   return data.quizzes || []
 }
 
-export async function fetchQuizById(id: string) {
+export async function fetchQuizById(id: string): Promise<{ quiz: QuizWithProfile & { questions?: any[] } }> {
   const response = await fetch(`/api/quizzes/${id}`)
   
   if (!response.ok) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/server"
-import { getAuth } from "@/lib/auth"
+import { getAuth } from "@/lib/auth/auth-helpers"
 import { z } from "zod"
 
 const updateSchema = z.object({
@@ -27,10 +27,12 @@ export async function GET(
         ),
         questions (
           id,
-          type,
-          prompt,
-          options,
-          order_index
+          stem,
+          qtype,
+          choices,
+          correct_answer,
+          solution_explained,
+          tags
         )
       `)
       .eq("id", params.id)
@@ -66,7 +68,7 @@ export async function PUT(
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 })
     }
 
-    if (existingQuiz.created_by !== auth.userId && auth.role !== 'admin') {
+    if (existingQuiz.created_by !== auth.user.id) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 })
     }
 
@@ -118,7 +120,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Quiz not found" }, { status: 404 })
     }
 
-    if (existingQuiz.created_by !== auth.userId && auth.role !== 'admin') {
+    if (existingQuiz.created_by !== auth.user.id) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 })
     }
 
