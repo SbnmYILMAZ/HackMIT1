@@ -9,10 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Brain, Eye, EyeOff, User, Lock } from "lucide-react"
+import { Brain, Eye, EyeOff, User, Lock, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signUpWithUsername, checkUsernameAvailability } from "@/lib/auth/auth-helpers"
+import { useToast } from "@/hooks/use-toast"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -27,6 +28,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -68,7 +70,18 @@ export default function RegisterPage() {
         full_name: formData.full_name
       })
       
-      router.push("/dashboard")
+      // Mostrar toast de éxito
+      toast({
+        title: "¡Cuenta creada exitosamente!",
+        description: "Bienvenido a QuizMaster",
+        variant: "default",
+        className: "border-green-200 bg-green-50 text-green-800"
+      })
+      
+      // Redirigir después de un breve delay para mostrar el toast
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 1000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error de registro")
     } finally {

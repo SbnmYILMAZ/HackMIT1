@@ -5,7 +5,7 @@ import type { SignUpWithUsernameData, SignInWithUsernameData, AuthUser, Database
 export async function signUpWithUsername(data: SignUpWithUsernameData) {
   try {
     // Crear email sintético para Supabase
-    const syntheticEmail = `${data.username}@app.local`
+    const syntheticEmail = `${data.username}@quizmaster.app`
     
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: syntheticEmail,

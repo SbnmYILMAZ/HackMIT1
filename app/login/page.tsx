@@ -8,10 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Brain, Eye, EyeOff, User, Lock } from "lucide-react"
+import { Brain, Eye, EyeOff, User, Lock, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signInWithUsername } from "@/lib/auth/auth-helpers"
+import { useToast } from "@/hooks/use-toast"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,7 +34,20 @@ export default function LoginPage() {
       }
 
       await signInWithUsername({ username, password })
-      router.push("/dashboard")
+      
+      // Mostrar toast de éxito
+      toast({
+        title: "¡Bienvenido de vuelta!",
+        description: "Has iniciado sesión correctamente",
+        variant: "default",
+        className: "border-green-200 bg-green-50 text-green-800"
+      })
+      
+      // Redirigir después de un breve delay para mostrar el toast
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 1000)
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error de inicio de sesión")
     } finally {

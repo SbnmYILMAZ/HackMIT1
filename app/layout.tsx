@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { SkipNavigation } from "@/components/skip-navigation"
 import { AuthProvider } from "@/hooks/use-auth"
+import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
         <AuthProvider>
           <SkipNavigation />
           <Suspense fallback={null}>{children}</Suspense>
+          <Toaster />
           <Analytics />
         </AuthProvider>
       </body>
