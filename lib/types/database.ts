@@ -267,6 +267,43 @@ export interface UpdateQuestionAPIForm {
   tags?: string[]
 }
 
+// Attempt interfaces for API endpoints
+export interface CreateAttemptForm {
+  quiz_id: string
+}
+
+export interface SubmitAnswersForm {
+  answers: {
+    question_id: string
+    response: any
+  }[]
+}
+
+export interface AttemptWithDetails extends Attempt {
+  quizzes?: {
+    id: string
+    title: string
+    subject: SubjectType
+    difficulty: DifficultyType
+    questions?: QuestionCustom[]
+  }
+  attempt_items?: AttemptItem[]
+  profiles?: {
+    id: string
+    username?: string
+    full_name?: string
+  }
+}
+
+export interface AttemptStats {
+  total_attempts: number
+  completed_attempts: number
+  in_progress_attempts: number
+  abandoned_attempts: number
+  average_score: number
+  completion_rate: number
+}
+
 export interface TakeQuizResponse {
   question_id: string
   response: Json
