@@ -281,6 +281,40 @@
         .create-account-btn:active {
             transform: translateY(0);
         }
+
+        .play-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            cursor: pointer;
+        }
+
+        .play-btn.active {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .play-btn.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .play-btn.inactive {
+            background: rgba(107, 114, 128, 0.3);
+            color: #9ca3af;
+            cursor: not-allowed;
+            border: 2px solid rgba(107, 114, 128, 0.5);
+        }
+
+        .play-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -315,11 +349,13 @@
             </form>
             
             <div class="create-account-section">
-                <p class="create-account-text">New to the mission?</p>
+                <p class="login-link">Don't have an account? <a href="/register">Register here</a></p>
+                <p class="login-link"><a href="/forgot-password">Forgot your password?</a></p>
                 <a href="/register" class="create-account-btn" style="text-decoration: none; display: inline-block;">
                     Join the Crew
                 </a>
             </div>
+            
         </div>
     </div>
 </body>

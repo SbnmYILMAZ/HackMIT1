@@ -251,6 +251,57 @@
                 {% endif %}
             </div>
             
+            <h3 style="color: #4facfe; margin: 2rem 0 1rem 0; text-align: center;">Security Questions</h3>
+            <p style="color: #cbd5e1; text-align: center; margin-bottom: 1.5rem; font-size: 0.9rem;">These will help you recover your account if you forget your password</p>
+            
+            <div class="form-group">
+                {{ form.security_question_1.label() }}
+                {{ form.security_question_1() }}
+                {% if form.security_question_1.errors %}
+                    <div class="form-errors">
+                        {% for error in form.security_question_1.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.security_answer_1.label() }}
+                {{ form.security_answer_1() }}
+                {% if form.security_answer_1.errors %}
+                    <div class="form-errors">
+                        {% for error in form.security_answer_1.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.security_question_2.label() }}
+                {{ form.security_question_2() }}
+                {% if form.security_question_2.errors %}
+                    <div class="form-errors">
+                        {% for error in form.security_question_2.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.security_answer_2.label() }}
+                {{ form.security_answer_2() }}
+                {% if form.security_answer_2.errors %}
+                    <div class="form-errors">
+                        {% for error in form.security_answer_2.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
             {{ form.submit(class="btn") }}
         </form>
         
